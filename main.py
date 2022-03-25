@@ -1,0 +1,92 @@
+import torch
+from AmazonFashionReviewDataset import AmazonFashionReviewDataset
+from model import Model
+from torch.utils.data import DataLoader
+import pandas as pd
+
+def label_transform(z):
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    
+    return torch.tensor(z).to(device)
+
+
+def transform(z):
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    tmp = torch.tensor(z).to(device)
+    tmp.requires_grad_()
+    return tmp
+
+
+def train_loop(dataloader, model, loss_fn, optimizer):
+    size = len(dataloader.dataset)
+    for batch, (user_input, item_input, y) in enumerate(dataloader):
+        pred = model(user_input, item_input)
+        loss = loss_fn(pred, y)
+
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+
+        if batch % 100 == 0:
+            loss, current = loss.item(), batch * len(X)
+            print(f'loss: {loss:>7f}  [{current:>5d}/{size:>5d}]')
+
+
+def test_loop(dataloader, model, loss_fn):
+    size = len(dataloader.dataset)
+    num_batches = len(dataloader)
+    test_loss, correct = 0, 0
+
+    with torch.no_grad():
+        for X, y in dataloader:
+            pred = model(X)
+            test_loss += loss_fn(pred, y).item()
+            correct += (pred - y).abs().type(torch.float).sum().item()
+
+    test_loss /= num_batches
+    correct /= size
+    print(f'Test Error \n Accuracy: {(100 * correct):>1f}%, Avg loss: {test_loss:>8f}')
+
+
+def main():
+    learning_rate = 1e-3
+    momentum = 0.9
+    batch_size = 512
+    epochs = 3
+
+    df = pd.read_csv('data\\simple_cols.csv')
+    train_data = df[df['latest_rating'] != 1]
+    test_data = df[df['latest_rating'] == 1]
+
+    train_data = AmazonFashionReviewDataset(None, df=train_data, transform=transform, target_transform=label_transform)
+    test_data = AmazonFashionReviewDataset(None, df=test_data, transform=transform, target_transform=label_transform)
+    print(train_data[0])
+    exit()
+    train_dataloader = DataLoader(train_data, batch_size=batch_size, shuffle=True)
+    test_dataloader = DataLoader(test_data, batch_size=batch_size, shuffle=True)
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    print(f'using {device} device')
+
+
+    model = Model(num_users=1219678, num_items=376858).to(device)
+
+    loss_fn = torch.nn.MSELoss()
+    optimizer = torch.optim.Adam(model.parameters())
+    try:
+        for t in range(epochs):
+            print(f"Epoch {t + 1}\n-------------------------------")
+            train_loop(train_dataloader, model, loss_fn, optimizer)
+            test_loop(test_dataloader, model, loss_fn)
+        print("Done!")
+        torch.save(model.state_dict(), 'model_weights.pth')
+    except KeyboardInterrupt:
+        print('Abort...')
+        safe = input('Safe model [y]es/[n]o: ')
+        if safe == 'y' or safe == 'Y':
+            torch.save(model.state_dict(), 'model_weights.pth')
+        else: 
+            print('Not saving...')
+
+
+if __name__ == '__main__':
+    main()
