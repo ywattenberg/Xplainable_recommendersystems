@@ -49,8 +49,8 @@ class ModelMatrixFactorization(torch.nn.Module):
         self.item_biases.weight.data.fill_(0.)
 
     def forward(self, user, item):
-        pred += self.user_biases(user) + self.item_biases(item)
-        pred = (self.user_factors(user) * self.item_factors(item)).sum(1, keepdim=True)
+        pred = self.user_biases(user) + self.item_biases(item)
+        pred += (self.user_factors(user) * self.item_factors(item)).sum(1, keepdim=True)
         return pred.squeeze()
 
     

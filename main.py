@@ -28,9 +28,9 @@ def train_loop(dataloader, model, loss_fn, optimizer):
         optimizer.step()
         
 
-        # if batch % 100 == 0:
-        #     loss, current = loss.item(), batch * len(X)
-        #     print(f'loss: {loss:>7f}  [{current:>5d}/{size:>5d}]')
+        if batch % 100 == 0:
+            loss, current = loss.item(), batch * len(user_input)
+            print(f'loss: {loss:>7f}  [{current:>5d}/{size:>5d}]')
 
 
 def test_loop(dataloader, model, loss_fn):
