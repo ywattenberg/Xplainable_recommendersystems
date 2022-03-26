@@ -1,7 +1,6 @@
-from webbrowser import get
 import pandas as pd
 import json
-from AmazonCSJDataset import AmazonCSJDataset
+import numpy as np
     
 def main():
     df = getDF('data/Clothing_Shoes_and_Jewelry_5.json')
@@ -23,14 +22,14 @@ def getDF(path):
         i += 1
     return pd.DataFrame.from_dict(df, orient='index')
 
-def encode_cols(self, column):
+def encode_cols(column):
         keys = column.unique()
         key_to_id = {key:idx for idx,key in enumerate(keys)}
         return key_to_id, np.array(key_to_id[x] for x in column), len(keys)
 
-def encode_df(self, df):
-    product_ids, df['asin'], num_products = self.encode_cols(df['asin'])
-    user_ids, df['reviewerID'], num_users = self.encode_cols(df['reviewerID'])
+def encode_df(df):
+    product_ids, df['asin'], num_products = encode_cols(df['asin'])
+    user_ids, df['reviewerID'], num_users = encode_cols(df['reviewerID'])
     return df, num_users, num_products, user_ids, product_ids
 
 if __name__ == '__main__':
