@@ -1,4 +1,5 @@
 
+from venv import create
 import pandas as pd
 import numpy as np
 import torch
@@ -26,7 +27,15 @@ def predict(df, emb_user, emb_product):
     return df
 
 def cost(df, emb_user, emb_product):
-    Y = create_sparse_matrix(df,)
+    Y = create_sparse_matrix(df, emb_user.shape[0], emb_product.shape[0])
+    predicted = create_sparse_matrix(predict(df, emb_user, emb_product), emb_user.shape[0], emb_product.shape[0], 'prediction')
+    return np.sum((Y-predicted).power(2))/df.shape[0]
+
+def create_embeddings(n, K):
+    return 11*np.random.random((n, K)) / K
+
+def create_sparse_matrix(df, rows, cols, column_name='rating'):
+    pass
 
 if __name__ == '__main__':
     main()

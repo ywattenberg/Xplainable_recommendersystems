@@ -1,11 +1,13 @@
 from webbrowser import get
 import pandas as pd
 import json
+from AmazonCSJDataset import AmazonCSJDataset
     
 def main():
-    df = pd.read_csv('data\\simple_cols.csv', low_memory=False)
-    df = df[['overall', 'reviewerID', 'asin', 'unixReviewTime', 'latest_rating']]
-    df.to_csv('compact_CSJ.csv')
+    ds = AmazonCSJDataset('data\\Clothing_Shoes_and_Jewelry_5.json')
+    #df = pd.read_csv('data\\simple_cols.csv', low_memory=False)
+    #df = df[['overall', 'reviewerID', 'asin', 'unixReviewTime', 'latest_rating']]
+    #df.to_csv('compact_CSJ.csv')
 
 def parse(path):
     with open(path, 'rb') as file:
