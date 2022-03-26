@@ -39,8 +39,8 @@ def test_loop(dataloader, model, loss_fn):
     test_loss, correct = 0, 0
 
     with torch.no_grad():
-        for X, y in dataloader:
-            pred = model(X)
+        for user_input, item_input, y in dataloader:
+            pred = model(user_input, item_input)
             test_loss += loss_fn(pred, y).item()
             correct += (pred - y).abs().type(torch.float).sum().item()
 
@@ -53,7 +53,7 @@ def main():
     learning_rate = 0.01
     momentum = 0.9
     batch_size = 1024
-    epochs = 1000
+    epochs = 20
 
     df = pd.read_csv('data\\compact_CSJ.csv')
     df['rank_latest'] = df.groupby(['reviewerID'])['unixReviewTime'].rank(method='first', ascending=False)
@@ -71,7 +71,7 @@ def main():
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     print(f'using {device} device')
 
-    model = ModelMatrixFactorization(num_users=num_users, num_items=num_items, n_factors=20).to(device)
+    model = ModelMatrixFactorization(num_users=num_users, num_items=num_items, n_factors=100).to(device)
 
     loss_fn = torch.nn.MSELoss()
     optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)

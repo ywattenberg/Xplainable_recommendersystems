@@ -1,4 +1,3 @@
-from turtle import forward
 import numpy as np
 from torch import nn
 import torch
