@@ -1,5 +1,3 @@
-from matplotlib.font_manager import _Weight
-from numpy import float32
 import torch
 from AmazonCSJDataset import AmazonCSJDataset
 from modelMLP import ModelMatrixFactorization
