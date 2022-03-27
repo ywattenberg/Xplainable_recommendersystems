@@ -1,3 +1,4 @@
+from matplotlib.font_manager import _Weight
 from numpy import float32
 import torch
 from AmazonCSJDataset import AmazonCSJDataset
@@ -52,6 +53,7 @@ def test_loop(dataloader, model, loss_fn):
 def main():
     learning_rate = 0.00001
     momentum = 0.9
+    decay = 1e-5
     batch_size = 1024
     epochs = 20
 
@@ -74,12 +76,11 @@ def main():
     model = ModelMatrixFactorization(num_users=num_users, num_items=num_items, n_factors=100).to(device)
 
     loss_fn = torch.nn.MSELoss()
-    optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
+    optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=momentum, weight_decay=decay)
     try:
         model.load_state_dict(torch.load('model_weights.pth', map_location=device))
         for t in range(epochs):
             print(f"Epoch {t + 1}\n-------------------------------")
-            optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
             train_loop(train_dataloader, model, loss_fn, optimizer)
             test_loop(test_dataloader, model, loss_fn)
         print("Done!")
