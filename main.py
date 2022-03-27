@@ -50,7 +50,7 @@ def test_loop(dataloader, model, loss_fn):
 
 
 def main():
-    learning_rate = 0.01
+    learning_rate = 0.00001
     momentum = 0.9
     batch_size = 1024
     epochs = 20
@@ -76,6 +76,7 @@ def main():
     loss_fn = torch.nn.MSELoss()
     optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
     try:
+        model.load_state_dict(torch.load('model_weights.pth', map_location=device))
         for t in range(epochs):
             print(f"Epoch {t + 1}\n-------------------------------")
             optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
