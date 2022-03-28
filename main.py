@@ -51,11 +51,11 @@ def test_loop(dataloader, model, loss_fn):
 def main():
     learning_rate = 0.00001
     momentum = 0.9
-    decay = 1e-5
+    decay = 1e-8
     batch_size = 1024
     epochs = 20
 
-    df = pd.read_csv('data\\compact_CSJ.csv')
+    df = pd.read_csv('data/compact_CSJ.csv')
     df['rank_latest'] = df.groupby(['reviewerID'])['unixReviewTime'].rank(method='first', ascending=False)
     train_data = df[df['rank_latest'] != 1]
     test_data = df[df['rank_latest'] == 1]
@@ -74,7 +74,7 @@ def main():
     model = ModelMatrixFactorization(num_users=num_users, num_items=num_items, n_factors=100).to(device)
 
     loss_fn = torch.nn.MSELoss()
-    optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=momentum, weight_decay=decay)
+    optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, weight_decay=decay)
     try:
         model.load_state_dict(torch.load('model_weights.pth', map_location=device))
         for t in range(epochs):
