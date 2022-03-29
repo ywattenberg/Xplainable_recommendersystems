@@ -3,6 +3,8 @@ numpy>=1.22.0
 scikit-image
 scikit-learn
 matplotlib
+requests
+shutil
 
 --find-links https://download.pytorch.org/whl/cu113/torch_stable.html
 torch==1.10.2+cu113
