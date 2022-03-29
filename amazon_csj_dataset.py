@@ -3,7 +3,7 @@ import pandas as pd
 import torch
 from torch.utils.data import Dataset
 import numpy as np
-from AmazonDatasetUtils import *
+from amazon_dataset_utils import *
 
 class AmazonCSJDataset(Dataset):
     def __init__(self, path, transform, label_transform, df=None):
@@ -11,7 +11,7 @@ class AmazonCSJDataset(Dataset):
             df = getDF(path)
             df = df[['overall', 'reviewerID', 'asin', 'unixReviewTime']]
             self.df, self.num_users, self.num_products, self.user_ids, self.product_ids = encode_df(df)
-            self.df.to_csv('data\\compact_CSJ.csv', index=False)
+            self.df.to_csv('data/compact_CSJ.csv', index=False)
         else:
             self.df = df
         self.transform = transform

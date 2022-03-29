@@ -1,7 +1,7 @@
 from asyncore import write
 import requests
 import shutil
-from AmazonDatasetUtils import parse
+from amazon_dataset_utils import parse
 
 def main(path):
     json_list = parse(path)
@@ -29,5 +29,11 @@ def getLines(path):
 
 if __name__ == '__main__':
     #main('data/meta_Clothing_Shoes_and_Jewelry.json')
+    missing_in_5 = []
     no_image = getLines('data/no_image.txt')
-    print(no_image[0:10])
+    json_list = parse('data/Clothing_Shoes_and_Jewelry_5.json')
+    for element in json_list:
+        asin = element['asin']
+        if asin in no_image:
+            with open('data/missing_in_5.txt', 'a') as file:
+                file.write(f'{asin}\n')

@@ -25,3 +25,11 @@ def encode_df(df):
     product_ids, df['productID'], num_products = encode_cols(df['asin'])
     user_ids, df['userID'], num_users = encode_cols(df['reviewerID'])
     return df, num_users, num_products, user_ids, product_ids
+
+def prepare_dataset(path):
+    df = getDF(path)
+    df = df[['overall', 'reviewerID', 'asin', 'unixReviewTime']]
+    df, num_users, num_products, user_ids, product_ids = encode_df(df)
+    df['rank_latest'] = df.groupby(['reviewerID'])['unixReviewTime'].rank(method='first', ascending=False)
+    df.to_csv('data/compact_CSJ.csv', index=False)
+    return df
