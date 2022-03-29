@@ -17,15 +17,14 @@ class AmazonCSJDataset(Dataset):
         self.transform = transform
         self.label_transform = label_transform
 
-
     def __len__(self):
         return len(self.df)
 
     def __getitem__(self, index):
-        reviewer = self.df.reviewerID.iloc[index]
-        asin = self.df.asin.iloc[index]
+        userID = self.df.userID.iloc[index]
+        productID = self.df.productID.iloc[index]
         label = self.df.overall.iloc[index]
-        return self.transform(reviewer), self.transform(asin), self.label_transform(label)
+        return self.transform(userID), self.transform(productID), self.label_transform(label)
 
     def parse(self, path):
         with open(path, 'rb') as file:
@@ -46,6 +45,6 @@ class AmazonCSJDataset(Dataset):
         return key_to_id, np.array(key_to_id[x] for x in column), len(keys)
 
     def encode_df(self, df):
-        product_ids, df['asin'], num_products = self.encode_cols(df['asin'])
-        user_ids, df['reviewerID'], num_users = self.encode_cols(df['reviewerID'])
+        product_ids, df['productID'], num_products = self.encode_cols(df['asin'])
+        user_ids, df['userID'], num_users = self.encode_cols(df['reviewerID'])
         return df, num_users, num_products, user_ids, product_ids
