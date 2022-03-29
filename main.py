@@ -3,6 +3,7 @@ from amazon_csj_dataset import AmazonCSJDataset
 from model import ModelMatrixFactorization
 from torch.utils.data import DataLoader
 import pandas as pd
+from amazon_dataset_utils import prepare_dataset
 
 def label_transform(z):
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -55,10 +56,11 @@ def main():
     batch_size = 1024
     epochs = 20
 
-    df = pd.read_csv('data/compact_CSJ.csv')
-    df['rank_latest'] = df.groupby(['reviewerID'])['unixReviewTime'].rank(method='first', ascending=False)
-    train_data = df[df['rank_latest'] != 1]
-    test_data = df[df['rank_latest'] == 1]
+    df = prepare_dataset('data/Clothing_Shoes_and_Jewelry_5.json')
+    #df = pd.read_csv('data/compact_CSJ.csv')
+    # df['rank_latest'] = df.groupby(['reviewerID'])['unixReviewTime'].rank(method='first', ascending=False)
+    # train_data = df[df['rank_latest'] != 1]
+    # test_data = df[df['rank_latest'] == 1]
 
     num_users = df['reviewerID'].nunique()
     num_items = df['asin'].nunique()
