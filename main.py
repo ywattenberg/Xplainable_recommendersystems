@@ -56,11 +56,11 @@ def main():
     batch_size = 1024
     epochs = 20
 
-    df = prepare_dataset('data/Clothing_Shoes_and_Jewelry_5.json')
-    #df = pd.read_csv('data/compact_CSJ.csv')
+    #df = prepare_dataset('data/Clothing_Shoes_and_Jewelry_5.json')
+    df = pd.read_csv('data/compact_CSJ.csv')
     # df['rank_latest'] = df.groupby(['reviewerID'])['unixReviewTime'].rank(method='first', ascending=False)
-    # train_data = df[df['rank_latest'] != 1]
-    # test_data = df[df['rank_latest'] == 1]
+    train_data = df[df['rank_latest'] != 1]
+    test_data = df[df['rank_latest'] == 1]
 
     num_users = df['reviewerID'].nunique()
     num_items = df['asin'].nunique()
@@ -73,7 +73,7 @@ def main():
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     print(f'using {device} device')
 
-    model = ModelMatrixFactorization(num_users=num_users, num_items=num_items, n_factors=100).to(device)
+    model = ModelMatrixFactorization(num_users=num_users, num_items=num_items, n_factors=50).to(device)
 
     loss_fn = torch.nn.MSELoss()
     optimizer = torch.optim.Adagrad(model.parameters(), lr=learning_rate)
