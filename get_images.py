@@ -13,8 +13,12 @@ def main(path):
             r = requests.get(urls[0], stream=True)
             if r.status_code == 200:
                 r.raw.decode_content = True
-                with open((f'./data/images/{asin}.{ending}'), 'wb') as f:
-                    shutil.copyfileobj(r.raw, f)       
+                with open(f'./data/images/{asin}.{ending}', 'wb') as f:
+                    shutil.copyfileobj(r.raw, f)
+                print(f'got image for {asin}')
+            else:
+                with open('failed.txt', 'a') as file:
+                    file.write(f'{asin}; {urls}\n')
         else:
             # with open('data/no_image.txt', 'a') as file:
             #     file.write(f'{asin}\n')
