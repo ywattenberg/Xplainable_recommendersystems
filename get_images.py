@@ -28,12 +28,4 @@ def getLines(path):
     return lines
 
 if __name__ == '__main__':
-    #main('data/meta_Clothing_Shoes_and_Jewelry.json')
-    missing_in_5 = []
-    no_image = getLines('data/no_image.txt')
-    json_list = parse('data/Clothing_Shoes_and_Jewelry_5.json')
-    for element in json_list:
-        asin = element['asin']
-        if asin in no_image:
-            with open('data/missing_in_5.txt', 'a') as file:
-                file.write(f'{asin}\n')
+    main('data/meta_Clothing_Shoes_and_Jewelry.json')
