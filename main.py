@@ -1,6 +1,6 @@
 import torch
 from amazon_csj_dataset import AmazonCSJDataset
-from model import ModelMatrixFactorization
+from model.MLPModel import ModelMatrixFactorization
 from torch.utils.data import DataLoader
 import pandas as pd
 from amazon_dataset_utils import prepare_dataset
