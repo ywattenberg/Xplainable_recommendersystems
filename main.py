@@ -1,9 +1,13 @@
+from numpy import dtype
 import torch
-from amazon_csj_dataset import AmazonCSJDataset
-from model.MLPModel import ModelMatrixFactorization
+from dataset.amazon_csj_dataset import AmazonCSJDataset
+from model.FactorizationMachines import FactorizationMachineModel
+from dataset.amazon_csj_dataset import AmazonCSJDataset
+
 from torch.utils.data import DataLoader
 import pandas as pd
-from amazon_dataset_utils import prepare_dataset
+from dataset.amazon_dataset_utils import prepare_dataset
+
 
 def label_transform(z):
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -19,17 +23,16 @@ def transform(z):
 
 def train_loop(dataloader, model, loss_fn, optimizer):
     size = len(dataloader.dataset)
-    for batch, (user_input, item_input, y) in enumerate(dataloader):
+    for batch, (x, y) in enumerate(dataloader):
         optimizer.zero_grad()
-
-        pred = model(user_input, item_input)
+        pred = model(x)
         loss = loss_fn(pred, y)
         loss.backward()
         optimizer.step()
         
 
         if batch % 100 == 0:
-            loss, current = loss.item(), batch * len(user_input)
+            loss, current = loss.item(), batch * len(x)
             print(f'loss: {loss:>7f}  [{current:>5d}/{size:>5d}]')
 
 
@@ -53,7 +56,7 @@ def main():
     learning_rate = 0.1
     momentum = 0.9
     decay = 1e-8
-    batch_size = 1024
+    batch_size = 256
     epochs = 20
 
     #df = prepare_dataset('data/Clothing_Shoes_and_Jewelry_5.json')
@@ -64,21 +67,24 @@ def main():
 
     num_users = df['reviewerID'].nunique()
     num_items = df['asin'].nunique()
+    
+    user_trans = lambda t :(torch.nn.functional.one_hot(transform(t), num_users)).float()
+    item_trans = lambda t : (torch.nn.functional.one_hot(transform(t), num_items)).float()
 
-    train_data = AmazonCSJDataset(path=None, df=train_data, transform=transform, label_transform=label_transform)
-    test_data = AmazonCSJDataset(path=None, df=test_data, transform=transform, label_transform=label_transform)
+    train_data = AmazonCSJDatasetFM(path=None, df=train_data, transform_user=user_trans, transfrom_product=item_trans, label_transform=label_transform)
+    test_data = AmazonCSJDatasetFM(path=None, df=test_data, transform_user=transform, transfrom_product=transform, label_transform=label_transform)
     train_dataloader = DataLoader(train_data, batch_size=batch_size, shuffle=True)
     test_dataloader = DataLoader(test_data, batch_size=batch_size, shuffle=True)
     
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     print(f'using {device} device')
 
-    model = ModelMatrixFactorization(num_users=num_users, num_items=num_items, n_factors=50).to(device)
+    model = FactorizationMachineModel([num_items, num_users], embedding_dim=20).to(device)
 
     loss_fn = torch.nn.MSELoss()
     optimizer = torch.optim.Adagrad(model.parameters(), lr=learning_rate)
     try:
-        model.load_state_dict(torch.load('model_weights.pth', map_location=device))
+        #model.load_state_dict(torch.load('model_weights.pth', map_location=device))
         for t in range(epochs):
             print(f"Epoch {t + 1}\n-------------------------------")
             train_loop(train_dataloader, model, loss_fn, optimizer)

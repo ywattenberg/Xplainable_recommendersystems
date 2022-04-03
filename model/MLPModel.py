@@ -5,7 +5,7 @@ import torch
 
 class ModelMLP(nn.Module):
 
-    def __init__(self, num_users, num_items, dump: bool = False):
+    def __init__(self, num_users, num_items, embedding_dim=20, dump: bool = False):
         super(ModelMLP, self).__init__()
         self.stack = nn.Sequential(
             nn.Linear(in_features=20, out_features=64),
@@ -18,8 +18,8 @@ class ModelMLP(nn.Module):
             nn.Sigmoid()
         )
 
-        self.user_embedding = nn.Embedding(num_embeddings=num_users, embedding_dim=10)
-        self.item_embedding = nn.Embedding(num_embeddings=num_items, embedding_dim=10)
+        self.user_embedding = nn.Embedding(num_embeddings=num_users, embedding_dim=embedding_dim)
+        self.item_embedding = nn.Embedding(num_embeddings=num_items, embedding_dim=embedding_dim)
 
     def forward(self, user_input, product_input):
         user_embedded = self.user_embedding(user_input)

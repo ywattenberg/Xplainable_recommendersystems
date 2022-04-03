@@ -4,32 +4,20 @@ import numpy as np
 
 
 class FactorizationMachineModel(torch.nn.Module):
-    """
-    Credit: github.com/rixwew \n
-    A pytorch implementation of Factorization Machine.
-    Reference:
-        S Rendle, Factorization Machines, 2010.
-    """
 
     def __init__(self, field_dims, embedding_dim):
         super().__init__()
-        self.fm = nn.FactorizationMachine(reduce_sum=True)
 
-        self.embedding = nn.Embedding(sum(field_dims), embedding_dim)
-        self.linear = nn.Embedding(sum(field_dims), embedding_dim)
-        self.lin_bias = nn.Parameter(torch.zeros((1,)))
-        self.offset = np.array((0, *np.cumsum(field_dims)[:-1]), dtype=np.long)
+        self.V = nn.Parameter(torch.randn(sum(field_dims), embedding_dim),requires_grad=True)
+        self.lin = nn.Linear(sum(field_dims), 1)
         
 
     def forward(self, x):
-        lx = x + x.new_tensor(self.offset).unsqueeze(0)
-        linear_res = torch.sum(self.linear(lx), dim=1) + self.lin_bias
-
-        fx = self.embedding(x)
-        square_of_sum = torch.sum(fx, dim=1) ** 2
-        sum_of_square = torch.sum(fx ** 2, dim=1)
-        fm_res = torch.sum((square_of_sum - sum_of_square), dim=1, keepdim=True)
-
-        res = linear_res + 0.5 * fm_res
-
-        return torch.sigmoid(res.squeeze(1))
+        out_1 = torch.matmul(x, self.V).pow(2).sum(1, keepdim=True) #S_1^2
+        out_2 = torch.matmul(x.pow(2), self.V.pow(2)).sum(1, keepdim=True) # S_2
+        
+        out_inter = 0.5*(out_1 - out_2)
+        out_lin = self.lin(x)
+        out = out_inter + out_lin
+        
+        return out
