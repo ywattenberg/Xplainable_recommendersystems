@@ -1,10 +1,28 @@
 from asyncore import write
+from operator import ne
 import requests
 import shutil
 from dataset.amazon_dataset_utils import parse
 import os
+import pandas as pd
 
 def main(path):
+    needed = []
+    with open('needed.txt', 'r') as file:
+        for line in file.readlines():
+            needed.append(line.replace('\n', ''))
+
+    needed = set(needed)
+    got = set([])
+    with open('downloaded.txt', 'r') as file:
+        for line in file.readlines():
+            asin = line.split('.')[0]
+            got.add(asin)
+
+    needed = needed - got
+    
+    print(len(needed))
+
     json_list = parse(path)
     for element in json_list:
         asin = element['asin']
@@ -33,8 +51,4 @@ def getLines(path):
     return lines
 
 if __name__ == '__main__':
-    #main('data/meta_Clothing_Shoes_and_Jewelry.json')
-    files = [f for f in os.listdir('./data/images') if os.path.isfile(os.path.join('./data/images', f))]
-    with open('downloaded.txt', 'w') as file:
-        for item in files:
-            file.writelines([item])
+    main('data/meta_Clothing_Shoes_and_Jewelry.json')
