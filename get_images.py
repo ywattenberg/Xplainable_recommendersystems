@@ -1,7 +1,8 @@
 from asyncore import write
 import requests
 import shutil
-from amazon_dataset_utils import parse
+from dataset.amazon_dataset_utils import parse
+import os
 
 def main(path):
     json_list = parse(path)
@@ -32,4 +33,8 @@ def getLines(path):
     return lines
 
 if __name__ == '__main__':
-    main('data/meta_Clothing_Shoes_and_Jewelry.json')
+    #main('data/meta_Clothing_Shoes_and_Jewelry.json')
+    files = [f for f in os.listdir('./data/images') if os.isfile(os.join('./data/images', f))]
+    with open('downloaded.txt', 'w') as file:
+        for item in files:
+            file.writelines([item])
