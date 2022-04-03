@@ -34,7 +34,7 @@ def getLines(path):
 
 if __name__ == '__main__':
     #main('data/meta_Clothing_Shoes_and_Jewelry.json')
-    files = [f for f in os.listdir('./data/images') if os.isfile(os.join('./data/images', f))]
+    files = [f for f in os.listdir('./data/images') if os.path.isfile(os.path.join('./data/images', f))]
     with open('downloaded.txt', 'w') as file:
         for item in files:
             file.writelines([item])
