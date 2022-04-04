@@ -20,9 +20,9 @@ def main():
         lines.append(line)
         if counter == 100:
             counter = 0
-            futures.append(pool.submit(function=download, args=(lines, needed)))
+            futures.append(pool.submit(download, lines, needed))
             lines = []
-    futures.append(pool.submit(function=download, args=(lines, needed)))
+    futures.append(pool.submit(download, lines, needed))
 
     for task in futures:
         task.join()
