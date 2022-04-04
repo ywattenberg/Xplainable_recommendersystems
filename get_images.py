@@ -45,13 +45,13 @@ def download(json_list, needed):
                         r.raw.decode_content = True
                         with open(f'./data/images/{asin}.{ending}', 'wb') as f:
                             shutil.copyfileobj(r.raw, f)
-                        logger.info(f'GOT {asin}\n')
+                        logger.info(f'GOT {asin}')
                     else:
-                        logger.info(f'FAILED {asin}; {urls}\n')
+                        logger.info(f'FAILED {asin}; {urls}')
                 except:
-                    logger.info(f'FAILED {asin}; {urls}\n')
+                    logger.info(f'FAILED {asin}; {urls}')
             else:
-                logger.info(f'NO {asin}\n')
+                logger.info(f'NO {asin}')
 
 
 if __name__ == '__main__':
