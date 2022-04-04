@@ -25,7 +25,7 @@ def main():
     futures.append(pool.submit(download, lines, needed))
 
     for task in futures:
-        task.join()
+        task.result()
 
 def download(json_list, needed):
     # got = set([])
