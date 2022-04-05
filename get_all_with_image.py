@@ -10,9 +10,9 @@ def main():
             not_jpg.append(file)
         have_img.add(split[0])
 
-    with open('not_jpg.txt', 'a') as not_jpg:
+    with open('not_jpg.txt', 'a') as file_jpg:
         for file in not_jpg:
-            not_jpg.write(file)
+            file_jpg.write(file)
     
     df = pd.read_csv('./data/compact_CSJ.csv')
     df[df.asin.isin(have_img)]
