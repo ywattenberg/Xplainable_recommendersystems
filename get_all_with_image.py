@@ -19,6 +19,9 @@ def main():
     print(len(df))
     df.to_csv('./data/compact_CSJ_with_img.csv', index=False)
 
+
+if __name__ == '__main__':
+    main()
     
     
     
