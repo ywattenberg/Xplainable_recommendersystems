@@ -73,8 +73,8 @@ def main():
     num_users = df['reviewerID'].nunique()
     num_items = df['asin'].nunique()
 
-    train_data = AmazonCSJDataset(path=None, df=train_data, transform=transform, label_transform=label_transform)
-    test_data = AmazonCSJDataset(path=None, df=test_data, transform=transform, label_transform=label_transform)
+    train_data = AmazonCSJDataset(path=None, df=train_data, transform=transform, label_transform=label_transform, image_transform=image_transform)
+    test_data = AmazonCSJDataset(path=None, df=test_data, transform=transform, label_transform=label_transform, image_transform=image_transform)
 
     train_dataloader = DataLoader(train_data, batch_size=batch_size, shuffle=True)
     test_dataloader = DataLoader(test_data, batch_size=batch_size, shuffle=True)
