@@ -15,7 +15,7 @@ def main():
             file_jpg.write(file)
     
     df = pd.read_csv('./data/compact_CSJ.csv')
-    df[df.asin.isin(have_img)]
+    df = df[df.asin.isin(have_img)]
     print(len(df))
     df.to_csv('./data/compact_CSJ_with_img.csv', index=False)
 
