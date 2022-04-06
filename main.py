@@ -11,18 +11,21 @@ from dataset.amazon_dataset_utils import prepare_dataset
 
 
 def label_transform(z):
-    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    #device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    device = 'cpu'
     return torch.tensor(z, dtype=torch.float32).to(device)
 
 
 def transform(z):
-    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    #device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    device = 'cpu'
     tmp = torch.tensor(z).to(device)
     #tmp.requires_grad_()
     return tmp
 
 def image_transform(img):
-    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    #device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    device = 'cpu'
     transform = transforms.Compose([transforms.Resize(256), transforms.CenterCrop(224), transforms.ToTensor()])
     return transform(img).to(device)
 
@@ -61,7 +64,7 @@ def main():
     learning_rate = 0.1
     momentum = 0.9
     decay = 1e-8
-    batch_size = 16
+    batch_size = 1
     epochs = 20
 
     #df = prepare_dataset('data/Clothing_Shoes_and_Jewelry_5.json')
@@ -79,7 +82,8 @@ def main():
     train_dataloader = DataLoader(train_data, batch_size=batch_size, shuffle=True)
     test_dataloader = DataLoader(test_data, batch_size=batch_size, shuffle=True)
     
-    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    #device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    device = 'cpu'
     print(f'using {device} device')
 
     model = ModelMatrixFactorization(num_items=num_items, num_users=num_users).to(device)
