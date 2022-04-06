@@ -28,7 +28,7 @@ def image_transform(img):
 
 def train_loop(dataloader, model, loss_fn, optimizer):
     size = len(dataloader.dataset)
-    for batch, user_input, item_input, image_input, y, in enumerate(dataloader):
+    for batch, (user_input, item_input, image_input, y) in enumerate(dataloader):
         optimizer.zero_grad()
         pred = model(user_input, item_input, image_input)
         loss = loss_fn(pred, y)
@@ -61,7 +61,7 @@ def main():
     learning_rate = 0.1
     momentum = 0.9
     decay = 1e-8
-    batch_size = 64
+    batch_size = 32
     epochs = 20
 
     #df = prepare_dataset('data/Clothing_Shoes_and_Jewelry_5.json')
