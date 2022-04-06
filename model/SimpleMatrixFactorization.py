@@ -23,10 +23,7 @@ class ModelMatrixFactorization(torch.nn.Module):
         image_factors = self.image_feature_extractor(image)
         item_factors = self.item_factors(item)
 
-        print(item_factors.size())
-        print(image_factors.size())
-
         item_v = 0.5*(image_factors + item_factors)
         pred = self.user_biases(user) + self.item_biases(item)
         pred += (self.user_factors(user) * item_v).sum(1, keepdim=True)
-        return pred.squeeze()
+        return pred.squeeze(dim=1)
