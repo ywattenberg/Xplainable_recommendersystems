@@ -1,7 +1,7 @@
 
 from torch.utils.data import Dataset
 from dataset.amazon_dataset_utils import *
-from skimage import io
+from PIL import Image
 import numpy as np
 import os
 
@@ -12,7 +12,7 @@ class AmazonCSJDataset(Dataset):
             df = getDF(path)
             df = df[['overall', 'reviewerID', 'asin', 'unixReviewTime']]
             self.df, self.num_users, self.num_products, self.user_ids, self.product_ids = encode_df(df)
-            self.df.to_csv('data/compact_CSJ.csv', index=False)
+            self.df.to_csv('data/compact_CSJ_with_img.csv', index=False)
         else:
             self.df = df
         self.transform = transform
@@ -28,7 +28,6 @@ class AmazonCSJDataset(Dataset):
         label = self.df.overall.iloc[index]
 
         asin = self.df.asin[index]
-        image = io.imread(os.path.join('./data/images', f'{asin}.jpg'))
-        image = np.transpose(image, (1,0,2))
+        image = Image.open(os.path.join('./data/images', f'{asin}.jpg'))
 
         return self.transform(userID), self.transform(productID), self.image_transform(image), self.label_transform(label)

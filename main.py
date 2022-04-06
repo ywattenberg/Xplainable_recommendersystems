@@ -1,11 +1,12 @@
-from numpy import dtype
+import numpy as np
+import pandas as pd
 import torch
+from torch.utils.data import DataLoader
+from torchvision import transforms
+
 from dataset.amazon_csj_dataset import AmazonCSJDataset
 from model.SimpleMatrixFactorization import ModelMatrixFactorization
 from dataset.amazon_csj_dataset import AmazonCSJDataset
-
-from torch.utils.data import DataLoader
-import pandas as pd
 from dataset.amazon_dataset_utils import prepare_dataset
 
 
@@ -20,6 +21,10 @@ def transform(z):
     #tmp.requires_grad_()
     return tmp
 
+def image_transform(img):
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    transform = transforms.Compose([transforms.Resize(256), transforms.CenterCrop(224), transforms.ToTensor()])
+    return transform(img).to(device)
 
 def train_loop(dataloader, model, loss_fn, optimizer):
     size = len(dataloader.dataset)
@@ -60,7 +65,7 @@ def main():
     epochs = 20
 
     #df = prepare_dataset('data/Clothing_Shoes_and_Jewelry_5.json')
-    df = pd.read_csv('data/compact_CSJ.csv')
+    df = pd.read_csv('data/compact_CSJ_with_img.csv')
     df['rank_latest'] = df.groupby(['reviewerID'])['unixReviewTime'].rank(method='first', ascending=False)
     train_data = df[df['rank_latest'] != 1]
     test_data = df[df['rank_latest'] == 1]
