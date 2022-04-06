@@ -1,7 +1,7 @@
 from numpy import dtype
 import torch
 from dataset.amazon_csj_dataset import AmazonCSJDataset
-from model.FactorizationMachines import FactorizationMachineModel
+from model.SimpleMatrixFactorization import ModelMatrixFactorization
 from dataset.amazon_csj_dataset import AmazonCSJDataset
 
 from torch.utils.data import DataLoader
@@ -23,16 +23,16 @@ def transform(z):
 
 def train_loop(dataloader, model, loss_fn, optimizer):
     size = len(dataloader.dataset)
-    for batch, (x, y) in enumerate(dataloader):
+    for batch, user_input, item_input, image_input, y, in enumerate(dataloader):
         optimizer.zero_grad()
-        pred = model(x)
+        pred = model(user_input, item_input, image_input)
         loss = loss_fn(pred, y)
         loss.backward()
         optimizer.step()
         
 
         if batch % 100 == 0:
-            loss, current = loss.item(), batch * len(x)
+            loss, current = loss.item(), batch * len(user_input)
             print(f'loss: {loss:>7f}  [{current:>5d}/{size:>5d}]')
 
 
@@ -42,8 +42,8 @@ def test_loop(dataloader, model, loss_fn):
     test_loss, correct = 0, 0
 
     with torch.no_grad():
-        for user_input, item_input, y in dataloader:
-            pred = model(user_input, item_input)
+        for user_input, item_input, image_input, y in dataloader:
+            pred = model(user_input, item_input, image_input)
             test_loss += loss_fn(pred, y).item()
             correct += (pred - y).abs().type(torch.float).sum().item()
 
@@ -61,25 +61,23 @@ def main():
 
     #df = prepare_dataset('data/Clothing_Shoes_and_Jewelry_5.json')
     df = pd.read_csv('data/compact_CSJ.csv')
-    # df['rank_latest'] = df.groupby(['reviewerID'])['unixReviewTime'].rank(method='first', ascending=False)
+    df['rank_latest'] = df.groupby(['reviewerID'])['unixReviewTime'].rank(method='first', ascending=False)
     train_data = df[df['rank_latest'] != 1]
     test_data = df[df['rank_latest'] == 1]
 
     num_users = df['reviewerID'].nunique()
     num_items = df['asin'].nunique()
-    
-    user_trans = lambda t :(torch.nn.functional.one_hot(transform(t), num_users)).float()
-    item_trans = lambda t : (torch.nn.functional.one_hot(transform(t), num_items)).float()
 
-    train_data = AmazonCSJDatasetFM(path=None, df=train_data, transform_user=user_trans, transfrom_product=item_trans, label_transform=label_transform)
-    test_data = AmazonCSJDatasetFM(path=None, df=test_data, transform_user=transform, transfrom_product=transform, label_transform=label_transform)
+    train_data = AmazonCSJDataset(path=None, df=train_data, transform=transform, label_transform=label_transform)
+    test_data = AmazonCSJDataset(path=None, df=test_data, transform=transform, label_transform=label_transform)
+
     train_dataloader = DataLoader(train_data, batch_size=batch_size, shuffle=True)
     test_dataloader = DataLoader(test_data, batch_size=batch_size, shuffle=True)
     
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     print(f'using {device} device')
 
-    model = FactorizationMachineModel([num_items, num_users], embedding_dim=20).to(device)
+    model = ModelMatrixFactorization(num_items=num_items, num_items=num_items).to(device)
 
     loss_fn = torch.nn.MSELoss()
     optimizer = torch.optim.Adagrad(model.parameters(), lr=learning_rate)

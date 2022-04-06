@@ -1,12 +1,13 @@
-import json
-import pandas as pd
-import torch
+
 from torch.utils.data import Dataset
-import numpy as np
 from dataset.amazon_dataset_utils import *
+from skimage import io
+import numpy as np
+import os
+
 
 class AmazonCSJDataset(Dataset):
-    def __init__(self, path, transform, label_transform, df=None):
+    def __init__(self, path, transform, label_transform, image_transform, df=None):
         if(path != None):
             df = getDF(path)
             df = df[['overall', 'reviewerID', 'asin', 'unixReviewTime']]
@@ -16,6 +17,7 @@ class AmazonCSJDataset(Dataset):
             self.df = df
         self.transform = transform
         self.label_transform = label_transform
+        self.image_transform = image_transform
 
     def __len__(self):
         return len(self.df)
@@ -24,4 +26,9 @@ class AmazonCSJDataset(Dataset):
         userID = self.df.userID.iloc[index]
         productID = self.df.productID.iloc[index]
         label = self.df.overall.iloc[index]
-        return self.transform(userID), self.transform(productID), self.label_transform(label)
+
+        asin = self.df.asin[index]
+        image = io.imread(os.path.join('./data/images', f'{asin}.jpg'))
+        image = np.transpose(image, (1,0,2))
+
+        return self.transform(userID), self.transform(productID), self.image_transform(image), self.label_transform(label)
