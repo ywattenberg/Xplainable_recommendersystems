@@ -82,7 +82,7 @@ def main():
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     print(f'using {device} device')
 
-    model = ModelMatrixFactorization(num_items=num_items, num_items=num_items).to(device)
+    model = ModelMatrixFactorization(num_items=num_items, num_users=num_users).to(device)
 
     loss_fn = torch.nn.MSELoss()
     optimizer = torch.optim.Adagrad(model.parameters(), lr=learning_rate)
