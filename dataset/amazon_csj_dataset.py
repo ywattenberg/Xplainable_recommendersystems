@@ -29,7 +29,7 @@ class AmazonCSJDataset(Dataset):
 
         asin = self.df.asin.iloc[index]
         image = Image.open(os.path.join('./data/images', f'{asin}.jpg'))
-        image = np.transpose(image, (2,0,1))
+        #image = np.transpose(image, (2,0,1))
 
-        
+
         return self.transform(userID), self.transform(productID), self.image_transform(image), self.label_transform(label)
