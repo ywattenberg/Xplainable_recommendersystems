@@ -17,7 +17,7 @@ def main():
     df = pd.read_csv('./data/compact_CSJ.csv')
     df = df[df['asin'].isin(have_img)]
     print(len(have_img))
-    print(len(df.asin.nunique()))
+    print(df.asin.nunique())
     df.to_csv('./data/compact_CSJ_with_img.csv', index=False)
 
 
