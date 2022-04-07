@@ -1,5 +1,19 @@
 import os
 import pandas as pd
+import numpy as np
+from PIL import Image
+
+def filter_b_and_w(path):
+    df = pd.read_csv(path)
+    product_IDs = df['asin']
+    one_channel = []
+
+    for asin in product_IDs:
+        img = Image.open(os.path.join('data/images', asin))
+        if img.mode == 'L':
+            print(np.shape(img))
+            one_channel.append(asin)
+    print(len(one_channel))
 
 def main():
     have_img = set()
@@ -22,7 +36,8 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    #main()
+    filter_b_and_w('data/compact_CSJ_with_img.csv')
     
     
     
