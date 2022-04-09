@@ -30,7 +30,7 @@ def train_loop(dataloader, model, loss_fn, optimizer):
     size = len(dataloader.dataset)
     for batch, (user_input, item_input, image_input, y) in enumerate(dataloader):
         optimizer.zero_grad()
-        pred = model(user_input, item_input, image_input)
+        pred = model(user_input, item_input)
         loss = loss_fn(pred, y)
         loss.backward()
         optimizer.step()
@@ -48,7 +48,7 @@ def test_loop(dataloader, model, loss_fn):
 
     with torch.no_grad():
         for user_input, item_input, image_input, y in dataloader:
-            pred = model(user_input, item_input, image_input)
+            pred = model(user_input, item_input)
             test_loss += loss_fn(pred, y).item()
             correct += (pred - y).abs().type(torch.float).sum().item()
 
@@ -93,12 +93,12 @@ def main():
             train_loop(train_dataloader, model, loss_fn, optimizer)
             test_loop(test_dataloader, model, loss_fn)
         print("Done!")
-        torch.save(model.state_dict(), 'model_weights.pth')
+        torch.save(model.state_dict(), 'model_weights_simple.pth')
     except KeyboardInterrupt:
         print('Abort...')
         safe = input('Safe model [y]es/[n]o: ')
         if safe == 'y' or safe == 'Y':
-            torch.save(model.state_dict(), 'model_weights.pth')
+            torch.save(model.state_dict(), 'model_weights_simple.pth')
         else: 
             print('Not saving...')
 
