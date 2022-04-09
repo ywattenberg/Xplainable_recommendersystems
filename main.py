@@ -28,7 +28,7 @@ def image_transform(img):
 
 def train_loop(dataloader, model, loss_fn, optimizer):
     size = len(dataloader.dataset)
-    for batch, (user_input, item_input, image_input, y) in enumerate(dataloader):
+    for batch, (user_input, item_input, y) in enumerate(dataloader):
         optimizer.zero_grad()
         pred = model(user_input, item_input)
         loss = loss_fn(pred, y)
@@ -47,7 +47,7 @@ def test_loop(dataloader, model, loss_fn):
     test_loss, correct = 0, 0
 
     with torch.no_grad():
-        for user_input, item_input, image_input, y in dataloader:
+        for user_input, item_input, y in dataloader:
             pred = model(user_input, item_input)
             test_loss += loss_fn(pred, y).item()
             correct += (pred - y).abs().type(torch.float).sum().item()
@@ -61,11 +61,12 @@ def main():
     learning_rate = 0.1
     momentum = 0.9
     decay = 1e-8
-    batch_size = 32
+    batch_size = 1024
     epochs = 20
 
     #df = prepare_dataset('data/Clothing_Shoes_and_Jewelry_5.json')
-    df = pd.read_csv('data/compact_CSJ_with_img.csv')
+    #df = pd.read_csv('data/compact_CSJ_with_img.csv')
+    df = pd.read_csv('data/compact_CSJ.csv')
     df['rank_latest'] = df.groupby(['reviewerID'])['unixReviewTime'].rank(method='first', ascending=False)
     train_data = df[df['rank_latest'] != 1]
     test_data = df[df['rank_latest'] == 1]
