@@ -36,7 +36,7 @@ def filter_img():
 
 def main():
 
-    bw_imgs = filter_b_and_w('./data/compact_CSJ.csv')
+    bw_imgs = filter_b_and_w('data/compact_CSJ_with_img.csv')
     df = df[~df['asin'].isin(bw_imgs)]
     df.to_csv('./data/compact_CSJ_with_img_no_BW.csv', index=False)
 
