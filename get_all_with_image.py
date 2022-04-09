@@ -9,7 +9,7 @@ def filter_b_and_w(path):
     one_channel = []
 
     for asin in product_IDs:
-        img = Image.open(os.path.join('data/images', asin))
+        img = Image.open(os.path.join('data/images', f'{asin}.jpg'))
         if img.mode == 'L':
             print(np.shape(img))
             one_channel.append(asin)
