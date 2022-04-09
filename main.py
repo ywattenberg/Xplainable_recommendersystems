@@ -66,8 +66,8 @@ def main():
     epochs = 20
 
     #df = prepare_dataset('data/Clothing_Shoes_and_Jewelry_5.json')
-    #df = pd.read_csv('data/compact_CSJ_with_img.csv')
-    df = pd.read_csv('data/compact_CSJ.csv')
+    df = pd.read_csv('data/compact_CSJ_with_img.csv')
+    #df = pd.read_csv('data/compact_CSJ.csv')
     df['rank_latest'] = df.groupby(['reviewerID'])['unixReviewTime'].rank(method='first', ascending=False)
     train_data = df[df['rank_latest'] != 1]
     test_data = df[df['rank_latest'] == 1]
