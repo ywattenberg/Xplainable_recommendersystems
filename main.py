@@ -86,7 +86,7 @@ def main():
     model = MatrixFactorizationWithImages(num_items=num_items, num_users=num_users).to(device)
 
     loss_fn = torch.nn.MSELoss()
-    optimizer = torch.optim.Adagrad(model.parameters(), lr=learning_rate)
+    optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
     try:
         #model.load_state_dict(torch.load('model_weights.pth', map_location=device))
         for t in range(epochs):
