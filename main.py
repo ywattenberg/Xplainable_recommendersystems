@@ -23,7 +23,7 @@ def transform(z):
 
 def image_transform(img):
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
-    transform = transforms.Compose([transforms.Resize(256), transforms.CenterCrop(224), transforms.ToTensor()])
+    transform = transforms.Compose([transforms.Resize(60), transforms.CenterCrop(50), transforms.ToTensor()])
     return transform(img).to(device)
 
 def train_loop(dataloader, model, loss_fn, optimizer):
@@ -65,7 +65,7 @@ def main():
     epochs = 20
 
     #df = prepare_dataset('data/Clothing_Shoes_and_Jewelry_5.json')
-    df = pd.read_csv('data/compact_CSJ_with_img.csv')
+    df = pd.read_csv('data/compact_CSJ_with_img_no_BW.csv')
     df['rank_latest'] = df.groupby(['reviewerID'])['unixReviewTime'].rank(method='first', ascending=False)
     train_data = df[df['rank_latest'] != 1]
     test_data = df[df['rank_latest'] == 1]
