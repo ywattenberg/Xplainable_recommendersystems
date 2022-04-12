@@ -4,8 +4,9 @@ import torch
 from torch.utils.data import DataLoader
 from torchvision import transforms
 
-from dataset.amazon_csj_dataset import AmazonCSJDataset
+from dataset.amazon_csj_dataset import AmazonCSJDatasetWithIMG
 from model.SimpleMatrixFactorization import ModelMatrixFactorization
+from model.MatrixFactorizationWithImages import MatrixFactorizationWithImages
 from dataset.amazon_csj_dataset import AmazonCSJDataset
 from dataset.amazon_dataset_utils import prepare_dataset
 
@@ -28,9 +29,9 @@ def image_transform(img):
 
 def train_loop(dataloader, model, loss_fn, optimizer):
     size = len(dataloader.dataset)
-    for batch, (user_input, item_input, image_input, y) in enumerate(dataloader):
+    for batch, (user_input, item_input, img_input, y) in enumerate(dataloader):
         optimizer.zero_grad()
-        pred = model(user_input, item_input, image_input)
+        pred = model(user_input, item_input, img_input)
         loss = loss_fn(pred, y)
         loss.backward()
         optimizer.step()
@@ -47,8 +48,8 @@ def test_loop(dataloader, model, loss_fn):
     test_loss, correct = 0, 0
 
     with torch.no_grad():
-        for user_input, item_input, image_input, y in dataloader:
-            pred = model(user_input, item_input, image_input)
+        for user_input, item_input, img_input, y in dataloader:
+            pred = model(user_input, item_input, img_input)
             test_loss += loss_fn(pred, y).item()
             correct += (pred - y).abs().type(torch.float).sum().item()
 
@@ -73,8 +74,8 @@ def main():
     num_users = df['reviewerID'].nunique()
     num_items = df['asin'].nunique()
 
-    train_data = AmazonCSJDataset(path=None, df=train_data, transform=transform, label_transform=label_transform, image_transform=image_transform)
-    test_data = AmazonCSJDataset(path=None, df=test_data, transform=transform, label_transform=label_transform, image_transform=image_transform)
+    train_data = AmazonCSJDatasetWithIMG(path=None, df=train_data, transform=transform, label_transform=label_transform, image_transform=image_transform)
+    test_data = AmazonCSJDatasetWithIMG(path=None, df=test_data, transform=transform, label_transform=label_transform, image_transform=image_transform)
 
     train_dataloader = DataLoader(train_data, batch_size=batch_size, shuffle=True)
     test_dataloader = DataLoader(test_data, batch_size=batch_size, shuffle=True)
@@ -82,7 +83,7 @@ def main():
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     print(f'using {device} device')
 
-    model = ModelMatrixFactorization(num_items=num_items, num_users=num_users).to(device)
+    model = MatrixFactorizationWithImages(num_items=num_items, num_users=num_users).to(device)
 
     loss_fn = torch.nn.MSELoss()
     optimizer = torch.optim.Adagrad(model.parameters(), lr=learning_rate)
@@ -93,12 +94,12 @@ def main():
             train_loop(train_dataloader, model, loss_fn, optimizer)
             test_loop(test_dataloader, model, loss_fn)
         print("Done!")
-        torch.save(model.state_dict(), 'model_weights.pth')
+        torch.save(model.state_dict(), 'model_weights_img.pth')
     except KeyboardInterrupt:
         print('Abort...')
         safe = input('Safe model [y]es/[n]o: ')
         if safe == 'y' or safe == 'Y':
-            torch.save(model.state_dict(), 'model_weights.pth')
+            torch.save(model.state_dict(), 'model_weights_img.pth')
         else: 
             print('Not saving...')
 
