@@ -15,7 +15,7 @@ def train_loop(dataloader, model, loss_fn, optimizer):
     size = len(dataloader.dataset)
     for batch, (user_input, item_input, img_input, y) in enumerate(dataloader):
         optimizer.zero_grad()
-        pred = model(user_input, item_input, img_input)
+        pred = model(img_input, user_input, item_input)
         loss = loss_fn(pred, y)
         loss.backward()
         optimizer.step()
@@ -33,7 +33,7 @@ def test_loop(dataloader, model, loss_fn):
 
     with torch.no_grad():
         for user_input, item_input, img_input, y in dataloader:
-            pred = model(user_input, item_input, img_input)
+            pred = model(img_input, user_input, item_input)
             test_loss += loss_fn(pred, y).item()
             correct += (pred - y).abs().type(torch.float).sum().item()
 

@@ -19,7 +19,7 @@ class MatrixFactorizationWithImages(torch.nn.Module):
         self.user_biases.weight.data.fill_(0.)
         self.item_biases.weight.data.fill_(0.)
 
-    def forward(self, user, item, image):
+    def forward(self, image, user, item):
         image_factors = self.image_feature_extractor(image)
         item_factors = self.item_factors(item)
 

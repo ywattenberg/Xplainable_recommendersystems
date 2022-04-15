@@ -23,8 +23,8 @@ def main():
     
     test_data = df[df['rank_latest'] == 1]
 
-    white_base_img = torch.ones([3,50,50], dtype=torch.float32, requires_grad=True)
-    black_base_img = torch.zeros([3,50,50], dtype=torch.float32, requires_grad=True)
+    white_base_img = torch.ones([1,3,50,50], dtype=torch.float32, requires_grad=True)
+    black_base_img = torch.zeros([1,3,50,50], dtype=torch.float32, requires_grad=True)
 
     ig = IntegratedGradients(model)
 
@@ -32,8 +32,13 @@ def main():
 
     user_input, product_input, img_input, rating = dataset[0]
 
-    (user_attr, product_attr, img_attr), delta = ig.attribute((user_input, product_input, img_input), baselines=(user_input, product_input, black_base_img), n_steps=100, return_convergence_delta=True)
-    print(img_attr)
+    user_input = user_input.unsqueeze(dim=0)
+    product_input = product_input.unsqueeze(dim=0)
+    img_input = img_input.unsqueeze(dim=0)
+
+    img_attr_b, delta_b = ig.attribute((img_input), baselines=(black_base_img), additional_forward_args=(user_input, product_input), n_steps=200, method='gausslegendre',return_convergence_delta=True)
+
+    img_attr_w, delta_w = ig.attribute((img_input), baselines=(white_base_img), additional_forward_args=(user_input, product_input), n_steps=200, method='gausslegendre',return_convergence_delta=True) 
 
 def plot_attributions(image, baseline, attribution_mask):
     # convert attribution array into displayable image
