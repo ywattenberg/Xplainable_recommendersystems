@@ -54,23 +54,19 @@ def plot_attributions(image, baseline, attribution_mask, alpha=0.4):
 
     fig.add_subplot(2, 2, 1)
     plt.imshow(baseline.permute(1, 2, 0))
-    plt.axes('off')
     plt.title('Baseline')
     
     fig.add_subplot(2, 2, 2)
     plt.imshow(image.permute(1, 2, 0))
-    plt.axes('off')
     plt.title('Image')
 
     fig.add_subplot(2, 2, 3)
     plt.imshow(attribution_mask.permute(1, 2, 0))
-    plt.axes('off')
     plt.title('Attribution Mask')
 
     fig.add_subplot(2, 2, 4)
     plt.imshow(attribution_mask.permute(1, 2, 0))
     plt.imshow(image.permute(1, 2, 0), alpha=alpha)
-    plt.axes('off')
     plt.title('Overlay')
 
     plt.tight_layout()
