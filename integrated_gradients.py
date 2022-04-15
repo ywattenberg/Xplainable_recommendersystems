@@ -12,10 +12,15 @@ from dataset.amazon_csj_dataset import AmazonCSJDatasetWithIMG
 
 def main():
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
-    model = MatrixFactorizationWithImages
-    model.load_state_dict(torch.load('model_weights_with_img.pth', map_location=device))
 
     df = pd.read_csv('data/compact_CSJ_with_img_no_BW.csv')
+    num_users = df['reviewerID'].nunique()
+    num_items = df['asin'].nunique()
+
+    model = MatrixFactorizationWithImages(num_items=num_items, num_users=num_users).to(device)
+    model.load_state_dict(torch.load('model_weights_img.pth', map_location=device))
+
+    
     test_data = df[df['rank_latest'] == 1]
 
     white_base_img = torch.ones([3,50,50], dtype=torch.float32, requires_grad=True)
