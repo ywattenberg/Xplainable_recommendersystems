@@ -1,5 +1,4 @@
-import random
-from statistics import mode
+from random import randint
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -33,7 +32,7 @@ def main():
     length = len(dataset)
 
     for i in range(20):
-        user_input, product_input, img_input, rating = dataset[random.randint(0, length)]
+        user_input, product_input, img_input, rating = dataset[randint(0, length)]
 
         user_input = user_input.unsqueeze(dim=0)
         product_input = product_input.unsqueeze(dim=0)
