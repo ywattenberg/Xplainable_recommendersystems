@@ -30,22 +30,24 @@ def main():
 
     dataset = AmazonCSJDatasetWithIMG(path=None, df=test_data)
 
-    user_input, product_input, img_input, rating = dataset[0]
+    for i in range(10):
+        user_input, product_input, img_input, rating = dataset[i]
 
-    user_input = user_input.unsqueeze(dim=0)
-    product_input = product_input.unsqueeze(dim=0)
-    img_input = img_input.unsqueeze(dim=0)
+        user_input = user_input.unsqueeze(dim=0)
+        product_input = product_input.unsqueeze(dim=0)
+        img_input = img_input.unsqueeze(dim=0)
 
-    img_attr_b, delta_b = ig.attribute((img_input), baselines=(black_base_img), additional_forward_args=(user_input, product_input), n_steps=200, method='gausslegendre',return_convergence_delta=True)
+        img_attr_b, delta_b = ig.attribute((img_input), baselines=(black_base_img), additional_forward_args=(user_input, product_input), n_steps=200, method='gausslegendre',return_convergence_delta=True)
 
-    img_attr_w, delta_w = ig.attribute((img_input), baselines=(white_base_img), additional_forward_args=(user_input, product_input), n_steps=200, method='gausslegendre',return_convergence_delta=True)
+        img_attr_w, delta_w = ig.attribute((img_input), baselines=(white_base_img), additional_forward_args=(user_input, product_input), n_steps=200, method='gausslegendre',return_convergence_delta=True)
 
-    plot_attributions(img_input, black_base_img, img_attr_b).savefig('test_IG.png')
+        plot_attributions(img_input, black_base_img, img_attr_b, f'delta {delta_b}').savefig(f'IG/{i}b.png')
+        plot_attributions(img_input, white_base_img, img_attr_w, f'delta {delta_w}').savefig(f'IG/{i}w.png')
     
 
 
 
-def plot_attributions(image, baseline, attribution_mask, alpha=0.4):
+def plot_attributions(image, baseline, attribution_mask,  suptitle, alpha=0.4):
     image = image.squeeze().cpu().detach()
     baseline = baseline.squeeze().cpu().detach()
     attribution_mask = attribution_mask.squeeze().cpu().detach().abs()
@@ -70,6 +72,8 @@ def plot_attributions(image, baseline, attribution_mask, alpha=0.4):
     plt.title('Overlay')
 
     plt.tight_layout()
+
+    fig.suptitle(suptitle)
     return fig
 if __name__ == '__main__':
     main()
