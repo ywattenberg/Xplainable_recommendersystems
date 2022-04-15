@@ -12,7 +12,7 @@ from dataset.amazon_dataset_utils import prepare_dataset
 
 def train_loop(dataloader, model, loss_fn, optimizer):
     size = len(dataloader.dataset)
-    for batch, (user_input, item_input, image_input, y) in enumerate(dataloader):
+    for batch, (user_input, item_input, y) in enumerate(dataloader):
         optimizer.zero_grad()
         pred = model(user_input, item_input)
         loss = loss_fn(pred, y)
@@ -31,7 +31,7 @@ def test_loop(dataloader, model, loss_fn):
     test_loss, correct = 0, 0
 
     with torch.no_grad():
-        for user_input, item_input, image_input, y in dataloader:
+        for user_input, item_input, y in dataloader:
             pred = model(user_input, item_input)
             test_loss += loss_fn(pred, y).item()
             correct += (pred - y).abs().type(torch.float).sum().item()
@@ -66,7 +66,7 @@ def main():
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     print(f'using {device} device')
 
-    model = ModelMatrixFactorization(num_items=num_items, num_users=num_users).to(device)
+    model = ModelMatrixFactorization(num_items=num_items, num_users=num_users, n_factors=100).to(device)
 
     loss_fn = torch.nn.MSELoss()
     optimizer = torch.optim.Adagrad(model.parameters(), lr=learning_rate)
