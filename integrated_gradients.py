@@ -1,3 +1,4 @@
+from random import random
 from statistics import mode
 import numpy as np
 import pandas as pd
@@ -29,9 +30,10 @@ def main():
     ig = IntegratedGradients(model)
 
     dataset = AmazonCSJDatasetWithIMG(path=None, df=test_data)
+    length = len(dataset)
 
-    for i in range(10):
-        user_input, product_input, img_input, rating = dataset[i]
+    for i in range(20):
+        user_input, product_input, img_input, rating = dataset[random.randint(0, length)]
 
         user_input = user_input.unsqueeze(dim=0)
         product_input = product_input.unsqueeze(dim=0)
@@ -41,35 +43,43 @@ def main():
 
         img_attr_w, delta_w = ig.attribute((img_input), baselines=(white_base_img), additional_forward_args=(user_input, product_input), n_steps=200, method='gausslegendre',return_convergence_delta=True)
 
-        plot_attributions(img_input, black_base_img, img_attr_b, f'delta {delta_b}').savefig(f'IG/{i}b.png')
-        plot_attributions(img_input, white_base_img, img_attr_w, f'delta {delta_w}').savefig(f'IG/{i}w.png')
+        plot_attributions(img_input, img_attr_b, img_attr_w, f'Plot {i}').savefig(f'IG/{i}.png')
     
 
 
 
-def plot_attributions(image, baseline, attribution_mask,  suptitle, alpha=0.4):
+def plot_attributions(image, attribution_mask_b, attribution_mask_w,  suptitle, alpha=0.4):
     image = image.squeeze().cpu().detach()
-    baseline = baseline.squeeze().cpu().detach()
-    attribution_mask = attribution_mask.squeeze().cpu().detach().abs()
+    attribution_mask_b = attribution_mask_b.squeeze().cpu().detach().abs()
+    attribution_mask_w = attribution_mask_w.squeeze().cpu().detach().abs()
     
-    fig = plt.figure(figsize=(10,10))
+    fig = plt.figure(figsize=(10,15))
 
     fig.add_subplot(2, 2, 1)
-    plt.imshow(baseline.permute(1, 2, 0))
-    plt.title('Baseline')
+    plt.imshow(np.zeros([50,50]))
+    plt.title('Empty')
     
     fig.add_subplot(2, 2, 2)
     plt.imshow(image.permute(1, 2, 0))
     plt.title('Image')
 
     fig.add_subplot(2, 2, 3)
-    plt.imshow(attribution_mask.permute(1, 2, 0))
-    plt.title('Attribution Mask')
+    plt.imshow(attribution_mask_b.permute(1, 2, 0))
+    plt.title('Attribution Mask (Black)')
 
     fig.add_subplot(2, 2, 4)
-    plt.imshow(attribution_mask.permute(1, 2, 0))
+    plt.imshow(attribution_mask_b.permute(1, 2, 0))
     plt.imshow(image.permute(1, 2, 0), alpha=alpha)
-    plt.title('Overlay')
+    plt.title('Overlay (Black)')
+
+    fig.add_subplot(2, 2, 5)
+    plt.imshow(attribution_mask_w.permute(1, 2, 0))
+    plt.title('Attribution Mask (White)')
+
+    fig.add_subplot(2, 2, 6)
+    plt.imshow(attribution_mask_w.permute(1, 2, 0))
+    plt.imshow(image.permute(1, 2, 0), alpha=alpha)
+    plt.title('Overlay (White)')
 
     plt.tight_layout()
 
