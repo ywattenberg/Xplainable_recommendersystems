@@ -54,28 +54,28 @@ def plot_attributions(image, attribution_mask_b, attribution_mask_w,  suptitle, 
     
     fig = plt.figure(figsize=(10,15))
 
-    fig.add_subplot(2, 3, 1)
+    fig.add_subplot(3, 2, 1)
     plt.imshow(np.zeros([50,50]))
     plt.title('Empty')
     
-    fig.add_subplot(2, 3, 2)
+    fig.add_subplot(3, 2, 2)
     plt.imshow(image.permute(1, 2, 0))
     plt.title('Image')
 
-    fig.add_subplot(2, 3, 3)
+    fig.add_subplot(3, 2, 3)
     plt.imshow(attribution_mask_b.permute(1, 2, 0))
     plt.title('Attribution Mask (Black)')
 
-    fig.add_subplot(2, 3, 4)
+    fig.add_subplot(3, 2, 4)
     plt.imshow(attribution_mask_b.permute(1, 2, 0))
     plt.imshow(image.permute(1, 2, 0), alpha=alpha)
     plt.title('Overlay (Black)')
 
-    fig.add_subplot(2, 3, 5)
+    fig.add_subplot(3, 2, 5)
     plt.imshow(attribution_mask_w.permute(1, 2, 0))
     plt.title('Attribution Mask (White)')
 
-    fig.add_subplot(2, 3, 6)
+    fig.add_subplot(3, 2, 6)
     plt.imshow(attribution_mask_w.permute(1, 2, 0))
     plt.imshow(image.permute(1, 2, 0), alpha=alpha)
     plt.title('Overlay (White)')
