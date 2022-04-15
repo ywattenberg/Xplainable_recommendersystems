@@ -1,4 +1,3 @@
-
 from torch.utils.data import Dataset
 from dataset.amazon_dataset_utils import *
 from PIL import Image
@@ -7,7 +6,7 @@ import os
 
 
 class AmazonCSJDataset(Dataset):
-    def __init__(self, path, transform, label_transform, image_transform, df=None):
+    def __init__(self, path, transform=transform, label_transform=label_transform, df=None):
         if(path != None):
             df = getDF(path)
             df = df[['overall', 'reviewerID', 'asin', 'unixReviewTime']]
@@ -35,7 +34,7 @@ class AmazonCSJDataset(Dataset):
         return self.transform(userID), self.transform(productID), self.label_transform(label)
 
 class AmazonCSJDatasetWithIMG(Dataset):
-    def __init__(self, path, transform, label_transform, image_transform, df=None):
+    def __init__(self, path, transform=transform, label_transform=label_transform, image_transform=image_transform, df=None):
         if(path != None):
             df = getDF(path)
             df = df[['overall', 'reviewerID', 'asin', 'unixReviewTime']]

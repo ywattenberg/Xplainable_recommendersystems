@@ -1,6 +1,8 @@
 import json
+import torch
 import pandas as pd 
 import numpy as np
+from torchvision import transforms
 
 
 def parse(path):
@@ -33,3 +35,18 @@ def prepare_dataset(path):
     df['rank_latest'] = df.groupby(['reviewerID'])['unixReviewTime'].rank(method='first', ascending=False)
     df.to_csv('data/compact_CSJ.csv', index=False)
     return df
+
+def label_transform(z):
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    return torch.tensor(z, dtype=torch.float32).to(device)
+
+def transform(z):
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    tmp = torch.tensor(z).to(device)
+    #tmp.requires_grad_()
+    return tmp
+
+def image_transform(img):
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    transform = transforms.Compose([transforms.Resize(60), transforms.CenterCrop(50), transforms.ToTensor()])
+    return transform(img).to(device)
