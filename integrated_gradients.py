@@ -46,6 +46,10 @@ def main():
 
 
 def plot_attributions(image, baseline, attribution_mask, alpha=0.4):
+    image = image.squeeze()
+    baseline = baseline.squeeze()
+    attribution_mask = attribution_mask.squeeze()
+    
     fig = plt.figure(figsize=(10,10))
 
     fig.add_subplot(2, 2, 1)
