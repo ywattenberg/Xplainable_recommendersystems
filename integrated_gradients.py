@@ -1,4 +1,4 @@
-from random import random
+import random
 from statistics import mode
 import numpy as np
 import pandas as pd
