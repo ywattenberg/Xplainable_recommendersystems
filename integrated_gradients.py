@@ -46,9 +46,9 @@ def main():
 
 
 def plot_attributions(image, baseline, attribution_mask, alpha=0.4):
-    image = image.squeeze().cpu()
-    baseline = baseline.squeeze().cpu()
-    attribution_mask = attribution_mask.squeeze().cpu()
+    image = image.squeeze().cpu().detach()
+    baseline = baseline.squeeze().cpu().detach()
+    attribution_mask = attribution_mask.squeeze().cpu().detach()
     
     fig = plt.figure(figsize=(10,10))
 
