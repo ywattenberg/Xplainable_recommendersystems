@@ -40,34 +40,37 @@ def main():
 
     img_attr_w, delta_w = ig.attribute((img_input), baselines=(white_base_img), additional_forward_args=(user_input, product_input), n_steps=200, method='gausslegendre',return_convergence_delta=True)
 
-
-
-def plot_attributions(image, baseline, attribution_mask):
-    # convert attribution array into displayable image
+    plot_attributions(img_input, black_base_img, img_attr_b).savefig('test_IG.png')
     
 
-    # display images
+
+
+def plot_attributions(image, baseline, attribution_mask, alpha=0.4):
     fig = plt.figure(figsize=(10,10))
 
     fig.add_subplot(2, 2, 1)
-    plt.imshow(baseline)
+    plt.imshow(baseline.permute(1, 2, 0))
     plt.axes('off')
     plt.title('Baseline')
     
     fig.add_subplot(2, 2, 2)
-    plt.imshow(image)
+    plt.imshow(image.permute(1, 2, 0))
     plt.axes('off')
     plt.title('Image')
 
     fig.add_subplot(2, 2, 3)
-    plt.imshow(attribution_mask)
+    plt.imshow(attribution_mask.permute(1, 2, 0))
     plt.axes('off')
     plt.title('Attribution Mask')
 
     fig.add_subplot(2, 2, 4)
-    plt.imshow()
+    plt.imshow(attribution_mask.permute(1, 2, 0))
+    plt.imshow(image.permute(1, 2, 0), alpha=alpha)
     plt.axes('off')
-    plt.title('Baseline')
+    plt.title('Overlay')
+
+    plt.tight_layout()
+    return fig
 if __name__ == '__main__':
     main()
 
