@@ -48,5 +48,5 @@ def transform(z):
 
 def image_transform(img):
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
-    transform = transforms.Compose([transforms.Resize(60), transforms.CenterCrop(50), transforms.ToTensor()])
+    transform = transforms.Compose([transforms.Resize(500), transforms.CenterCrop(500), transforms.ToTensor()])
     return transform(img).to(device)

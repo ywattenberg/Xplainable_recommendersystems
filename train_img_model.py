@@ -1,3 +1,5 @@
+from lib2to3.pgen2.pgen import DFAState
+from operator import index
 import numpy as np
 import pandas as pd
 import torch
@@ -8,7 +10,7 @@ from dataset.amazon_csj_dataset import AmazonCSJDatasetWithIMG
 from model.SimpleMatrixFactorization import ModelMatrixFactorization
 from model.MatrixFactorizationWithImages import MatrixFactorizationWithImages
 from dataset.amazon_csj_dataset import AmazonCSJDataset
-from dataset.amazon_dataset_utils import prepare_dataset
+from dataset.amazon_dataset_utils import *
 
 
 def train_loop(dataloader, model, loss_fn, optimizer):
@@ -50,16 +52,21 @@ def main():
     epochs = 20
 
     #df = prepare_dataset('data/Clothing_Shoes_and_Jewelry_5.json')
-    df = pd.read_csv('data/compact_CSJ_with_img_no_BW.csv')
+    df = pd.read_csv('data/compact_CSJ_with_imgHD_no_BW.csv')
+    df = encode_df(df)
     df['rank_latest'] = df.groupby(['reviewerID'])['unixReviewTime'].rank(method='first', ascending=False)
     train_data = df[df['rank_latest'] != 1]
     test_data = df[df['rank_latest'] == 1]
+    df.to_csv('data/compact_CSJ_with_imgHD_no_BW.csv', index=False)
 
     num_users = df['reviewerID'].nunique()
     num_items = df['asin'].nunique()
 
     train_data = AmazonCSJDatasetWithIMG(path=None, df=train_data)
     test_data = AmazonCSJDatasetWithIMG(path=None, df=test_data)
+
+    print(len(train_data))
+    print(len(test_data))
 
     train_dataloader = DataLoader(train_data, batch_size=batch_size, shuffle=True)
     test_dataloader = DataLoader(test_data, batch_size=batch_size, shuffle=True)
