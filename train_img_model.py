@@ -52,12 +52,12 @@ def main():
     epochs = 3
 
     #df = prepare_dataset('data/Clothing_Shoes_and_Jewelry_5.json')
-    df = pd.read_csv('data/compact_CSJ_with_imgHD_no_BW.csv')
-    df = encode_df(df)
+    df = pd.read_csv('data/compact_CSJ_with_imgHD_no_bw.csv')
+    #df = encode_df(df)
     df['rank_latest'] = df.groupby(['reviewerID'])['unixReviewTime'].rank(method='first', ascending=False)
     train_data = df[df['rank_latest'] != 1]
     test_data = df[df['rank_latest'] == 1]
-    df.to_csv('data/compact_CSJ_with_imgHD_no_BW.csv', index=False)
+    #df.to_csv('data/compact_CSJ_with_imgHD_no_BW.csv', index=False)
 
     num_users = df['reviewerID'].nunique()
     num_items = df['asin'].nunique()
