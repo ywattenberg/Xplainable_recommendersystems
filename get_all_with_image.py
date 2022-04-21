@@ -36,25 +36,29 @@ def filter_img():
     return have_img
 
 def main():
-    #filter_img()
-    # bw_imgs = filter_b_and_w('data/compact_CSJ_with_img.csv')
-    # df = df[~df['asin'].isin(bw_imgs)]
-    # df.to_csv('./data/compact_CSJ_with_img_no_BW.csv', index=False)
-    bw_images = set()
-    with open('BW_img.txt', 'r') as file:
-        for l in file:
-            bw_images.add(l)
-
     img = []
-    with open('have_img.txt', 'r') as file:
+    with open('have_img_no_BW.txt', 'r') as file:
         for l in file:
-            if l not in bw_images:
-                img.append(l)
+            img.append(l)
+    df = pd.read_csv('compact_CSJ.csv')
+    df = df[df['asin'].isin(img)]
+    df.to_csv('./data/compact_CSJ_with_imgHD_no_BW.csv', index=False)
+
+    # bw_images = set()
+    # with open('BW_img.txt', 'r') as file:
+    #     for l in file:
+    #         bw_images.add(l)
+
+    # img = []
+    # with open('have_img.txt', 'r') as file:
+    #     for l in file:
+    #         if l not in bw_images:
+    #             img.append(l)
     
-    #os.remove('have_img.txt')
-    with open('have_img_no_bw.txt', 'a') as file:
-        for element in img:
-            file.write(element)
+    # #os.remove('have_img.txt')
+    # with open('have_img_no_bw.txt', 'a') as file:
+    #     for element in img:
+    #         file.write(element)
 
 if __name__ == '__main__':
     main()
