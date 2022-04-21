@@ -23,7 +23,7 @@ def filter_b_and_w(path):
 def filter_img():
     have_img = set()
     not_jpg = list()
-    for file in os.listdir('./data/images'):
+    for file in os.listdir('./data/imagesHD'):
         split = file.split('.')
         if split[1] != 'jpg':
             not_jpg.append(file)
@@ -32,18 +32,16 @@ def filter_img():
     with open('not_jpg.txt', 'a') as file_jpg:
         for file in not_jpg:
             file_jpg.write(file)
+
+    with open('have_img.txt', 'a') as file:
+        for element in have_img:
+            file.write(element)
     return have_img
 
 def main():
-
-    bw_imgs = filter_b_and_w('data/compact_CSJ_with_img.csv')
-    df = df[~df['asin'].isin(bw_imgs)]
-    df.to_csv('./data/compact_CSJ_with_img_no_BW.csv', index=False)
-
-
-if __name__ == '__main__':
-    main()
-    #filter_b_and_w('data/compact_CSJ_with_img.csv')
-    
+    filter_img()
+    # bw_imgs = filter_b_and_w('data/compact_CSJ_with_img.csv')
+    # df = df[~df['asin'].isin(bw_imgs)]
+    # df.to_csv('./data/compact_CSJ_with_img_no_BW.csv', index=False)
     
     
