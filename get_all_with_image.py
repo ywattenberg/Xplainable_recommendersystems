@@ -56,7 +56,8 @@ def main():
         for element in img:
             file.write(element)
 
-
+if __name__ == '__main__':
+    main()
 
     
     
