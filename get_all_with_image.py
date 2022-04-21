@@ -29,19 +29,34 @@ def filter_img():
             not_jpg.append(file)
         have_img.add(split[0])
 
-    with open('not_jpg.txt', 'a') as file_jpg:
-        for file in not_jpg:
-            file_jpg.write(file)
-
     with open('have_img.txt', 'a') as file:
         for element in have_img:
             file.write(element)
+            file.write('\n')
     return have_img
 
 def main():
-    filter_img()
+    #filter_img()
     # bw_imgs = filter_b_and_w('data/compact_CSJ_with_img.csv')
     # df = df[~df['asin'].isin(bw_imgs)]
     # df.to_csv('./data/compact_CSJ_with_img_no_BW.csv', index=False)
+    bw_images = set()
+    with open('BW_img.txt', 'r') as file:
+        for l in file:
+            bw_images.add(l)
+
+    img = []
+    with open('have_img.txt', 'r') as file:
+        for l in file:
+            if l not in bw_images:
+                img.append(l)
+    
+    #os.remove('have_img.txt')
+    with open('have_img_no_bw.txt', 'a') as file:
+        for element in img:
+            file.write(element)
+
+
+
     
     
