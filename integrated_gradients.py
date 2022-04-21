@@ -2,6 +2,7 @@ from random import randint
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+from pyparsing import alphas
 import torch
 from captum.attr import IntegratedGradients
 from model.MatrixFactorizationWithImages import MatrixFactorizationWithImages
@@ -44,9 +45,6 @@ def main():
 
         plot_attributions(img_input, img_attr_b, img_attr_w, f'Plot {i}').savefig(f'IG/{i}.png')
     
-
-
-
 def plot_attributions(image, attribution_mask_b, attribution_mask_w,  suptitle, alpha=0.4):
     image = image.squeeze().cpu().detach()
     attribution_mask_b = attribution_mask_b.squeeze().cpu().detach().abs().sum(dim=0)
@@ -63,20 +61,20 @@ def plot_attributions(image, attribution_mask_b, attribution_mask_w,  suptitle, 
     plt.title('Image')
 
     fig.add_subplot(3, 2, 3)
-    plt.imshow(attribution_mask_b.permute(1, 2, 0))
+    plt.imshow(attribution_mask_b)
     plt.title('Attribution Mask (Black)')
 
     fig.add_subplot(3, 2, 4)
-    plt.imshow(attribution_mask_b.permute(1, 2, 0))
+    plt.imshow(attribution_mask_b)
     plt.imshow(image.permute(1, 2, 0), alpha=alpha)
     plt.title('Overlay (Black)')
 
     fig.add_subplot(3, 2, 5)
-    plt.imshow(attribution_mask_w.permute(1, 2, 0))
+    plt.imshow(attribution_mask_w)
     plt.title('Attribution Mask (White)')
 
     fig.add_subplot(3, 2, 6)
-    plt.imshow(attribution_mask_w.permute(1, 2, 0))
+    plt.imshow(attribution_mask_w)
     plt.imshow(image.permute(1, 2, 0), alpha=alpha)
     plt.title('Overlay (White)')
 
@@ -84,6 +82,16 @@ def plot_attributions(image, attribution_mask_b, attribution_mask_w,  suptitle, 
 
     fig.suptitle(suptitle)
     return fig
+
+def calc_IG(model, base_img, product_img, user_in, product_in, steps):
+    alphas = torch.linspace(start=0.0, end=1.0, steps=steps+1)
+
+def interpolate_img(baseline, image, alphas):
+    alphas_x = alphas[:, None, None, None]
+    baseline_x = baseline.unsqueeze(dim=0)
+    image_x = image.unsqueeze(dim=0)
+    delta = image_x - baseline_x
+    return baseline_x + alphas_x * delta
 
 if __name__ == '__main__':
     main()
