@@ -49,7 +49,7 @@ def main():
     momentum = 0.9
     decay = 1e-8
     batch_size = 32
-    epochs = 20
+    epochs = 3
 
     #df = prepare_dataset('data/Clothing_Shoes_and_Jewelry_5.json')
     df = pd.read_csv('data/compact_CSJ_with_imgHD_no_BW.csv')
@@ -71,7 +71,7 @@ def main():
     train_dataloader = DataLoader(train_data, batch_size=batch_size, shuffle=True)
     test_dataloader = DataLoader(test_data, batch_size=batch_size, shuffle=True)
     
-    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    device = 'cuda:1' if torch.cuda.is_available() else 'cpu'
     print(f'using {device} device')
 
     model = MatrixFactorizationWithImages(num_items=num_items, num_users=num_users).to(device)
@@ -85,12 +85,12 @@ def main():
             train_loop(train_dataloader, model, loss_fn, optimizer)
             test_loop(test_dataloader, model, loss_fn)
         print("Done!")
-        torch.save(model.state_dict(), 'model_weights_img.pth')
+        torch.save(model.state_dict(), 'model_weights_imgHD.pth')
     except KeyboardInterrupt:
         print('Abort...')
         safe = input('Safe model [y]es/[n]o: ')
         if safe == 'y' or safe == 'Y':
-            torch.save(model.state_dict(), 'model_weights_img.pth')
+            torch.save(model.state_dict(), 'model_weights_imgHD.pth')
         else: 
             print('Not saving...')
 
