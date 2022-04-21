@@ -1,15 +1,13 @@
 import requests
 import shutil
-from dataset.amazon_dataset_utils import parse
-from concurrent.futures import ThreadPoolExecutor
 import logging
+from concurrent.futures import ThreadPoolExecutor
+from dataset.amazon_dataset_utils import parse
+from get_all_with_image import *
+
 
 def main():
     path = 'data/meta_Clothing_Shoes_and_Jewelry.json'
-    needed = set([])
-    with open('needed.txt', 'r') as file:
-        for line in file.readlines():
-            needed.add(line.replace('\n', ''))
 
     pool = ThreadPoolExecutor(16)
     futures = []
@@ -20,14 +18,14 @@ def main():
         lines.append(line)
         if counter == 100:
             counter = 0
-            futures.append(pool.submit(download, lines, needed))
+            futures.append(pool.submit(download, lines))
             lines = []
-    futures.append(pool.submit(download, lines, needed))
+    futures.append(pool.submit(download, lines))
 
     for task in futures:
         task.result()
 
-def download(json_list, needed):
+def download(json_list):
     # got = set([])
     # with open('downloaded.txt', 'r') as file:
     #     for line in file.readlines():
@@ -35,23 +33,22 @@ def download(json_list, needed):
     #         got.add(asin)
     for element in json_list:
         asin = element['asin']
-        if asin in needed:
-            if 'imageURL' in element.keys():
-                urls = element['imageURL']
-                ending = urls[0].split('.')[-1] 
-                try:
-                    r = requests.get(urls[0], stream=True)
-                    if r.status_code == 200:
-                        r.raw.decode_content = True
-                        with open(f'./data/images/{asin}.{ending}', 'wb') as f:
-                            shutil.copyfileobj(r.raw, f)
-                        logger.info(f'GOT {asin}')
-                    else:
-                        logger.info(f'FAILED {asin}; {urls}')
-                except:
+        if 'imageURLHighRes' in element.keys():
+            urls = element['imageURLHighRes']
+            ending = urls[0].split('.')[-1] 
+            try:
+                r = requests.get(urls[0], stream=True)
+                if r.status_code == 200:
+                    r.raw.decode_content = True
+                    with open(f'./data/imagesHD/{asin}.{ending}', 'wb') as f:
+                        shutil.copyfileobj(r.raw, f)
+                    logger.info(f'GOT {asin}')
+                else:
                     logger.info(f'FAILED {asin}; {urls}')
-            else:
-                logger.info(f'NO {asin}')
+            except:
+                logger.info(f'FAILED {asin}; {urls}')
+        else:
+            logger.info(f'NO {asin}')
 
 
 if __name__ == '__main__':
@@ -61,5 +58,4 @@ if __name__ == '__main__':
     ch = logging.FileHandler(logpath)
     ch.setFormatter(logging.Formatter('%(message)s'))
     logger.addHandler(ch)
-
     main()

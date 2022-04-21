@@ -49,8 +49,8 @@ def main():
 
 def plot_attributions(image, attribution_mask_b, attribution_mask_w,  suptitle, alpha=0.4):
     image = image.squeeze().cpu().detach()
-    attribution_mask_b = attribution_mask_b.squeeze().cpu().detach().abs()
-    attribution_mask_w = attribution_mask_w.squeeze().cpu().detach().abs()
+    attribution_mask_b = attribution_mask_b.squeeze().cpu().detach().abs().sum(dim=0)
+    attribution_mask_w = attribution_mask_w.squeeze().cpu().detach().abs().sum(dim=0)
     
     fig = plt.figure(figsize=(10,15))
 
@@ -84,6 +84,7 @@ def plot_attributions(image, attribution_mask_b, attribution_mask_w,  suptitle, 
 
     fig.suptitle(suptitle)
     return fig
+
 if __name__ == '__main__':
     main()
 
