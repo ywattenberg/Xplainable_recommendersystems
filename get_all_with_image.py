@@ -28,9 +28,18 @@ def filter_img(path):
             file.write('\n')
     return have_img
 
+def create_csv(path, have_img):
+    df = pd.read_csv('/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ.csv')
+    if have_img == None:
+        have_img = set()
+        with open('have_img.txt', 'r') as file:
+            for line in file:
+                have_img.add(line.replace('\n', ''))
+    df = df[df['asin'].isin(have_img)]
+    df.to_csv('/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ_imgHD.csv')
 def main():
-    filter_img('/mnt/ds3lab-scratch/ywattenberg/data/imagesHD')
-
+    #filter_img('/mnt/ds3lab-scratch/ywattenberg/data/imagesHD')
+    create_csv('', None)
     # bw_images = set()
     # with open('BW_img.txt', 'r') as file:
     #     for l in file:
