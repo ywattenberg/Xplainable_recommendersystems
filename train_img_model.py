@@ -52,12 +52,12 @@ def main():
     epochs = 3
 
     #df = prepare_dataset('data/Clothing_Shoes_and_Jewelry_5.json')
-    df = pd.read_csv('data/compact_CSJ_with_imgHD_no_bw.csv')
-    #df = encode_df(df)
+    df = pd.read_csv('/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ_imgHD.csv')
+    df = encode_df(df)
     df['rank_latest'] = df.groupby(['reviewerID'])['unixReviewTime'].rank(method='first', ascending=False)
     train_data = df[df['rank_latest'] != 1]
     test_data = df[df['rank_latest'] == 1]
-    #df.to_csv('data/compact_CSJ_with_imgHD_no_BW.csv', index=False)
+    df.to_csv('/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ_imgHD.csv', index=False)
 
     num_users = df['reviewerID'].nunique()
     num_items = df['asin'].nunique()
@@ -79,7 +79,7 @@ def main():
     loss_fn = torch.nn.MSELoss()
     optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
     try:
-        #model.load_state_dict(torch.load('model_weights.pth', map_location=device))
+        model.load_state_dict(torch.load('model_weights_imgHD.pth', map_location=device))
         for t in range(epochs):
             print(f"Epoch {t + 1}\n-------------------------------")
             train_loop(train_dataloader, model, loss_fn, optimizer)

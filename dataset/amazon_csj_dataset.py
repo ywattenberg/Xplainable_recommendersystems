@@ -55,7 +55,7 @@ class AmazonCSJDatasetWithIMG(Dataset):
         label = self.df.overall.iloc[index]
 
         asin = self.df.asin.iloc[index]
-        image = Image.open(os.path.join('./data/images', f'{asin}.jpg'))
+        image = Image.open(os.path.join('/mnt/ds3lab-scratch/ywattenberg/data/imagesHD/', f'{asin}.jpg'))
         #image = np.transpose(image, (2,0,1))
 
 
