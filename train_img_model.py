@@ -45,7 +45,7 @@ def test_loop(dataloader, model, loss_fn):
 
 
 def main():
-    learning_rate = 0.1
+    learning_rate = 0.01
     momentum = 0.9
     decay = 1e-8
     batch_size = 32
@@ -65,9 +65,6 @@ def main():
     train_data = AmazonCSJDatasetWithIMG(path=None, df=train_data)
     test_data = AmazonCSJDatasetWithIMG(path=None, df=test_data)
 
-    print(len(train_data))
-    print(len(test_data))
-
     train_dataloader = DataLoader(train_data, batch_size=batch_size, shuffle=True)
     test_dataloader = DataLoader(test_data, batch_size=batch_size, shuffle=True)
     
@@ -79,7 +76,7 @@ def main():
     loss_fn = torch.nn.MSELoss()
     optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
     try:
-        model.load_state_dict(torch.load('model_weights_imgHD.pth', map_location=device))
+        #model.load_state_dict(torch.load('model_weights_imgHD.pth', map_location=device))
         for t in range(epochs):
             print(f"Epoch {t + 1}\n-------------------------------")
             train_loop(train_dataloader, model, loss_fn, optimizer)
