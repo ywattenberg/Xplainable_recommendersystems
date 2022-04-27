@@ -45,3 +45,5 @@ def main():
     test_loop(test_img_dataloader, model_img, torch.nn.MSELoss())
     test_loop(test_dataloader, model, torch.nn.MSELoss())
 
+if __name__ == '__main__':
+    main()
