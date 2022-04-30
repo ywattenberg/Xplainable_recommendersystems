@@ -37,16 +37,16 @@ def prepare_dataset(path):
     return df
 
 def label_transform(z):
-    device = 'cuda:1' if torch.cuda.is_available() else 'cpu'
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
     return torch.tensor(z, dtype=torch.float32).to(device)
 
 def transform(z):
-    device = 'cuda:1' if torch.cuda.is_available() else 'cpu'
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
     tmp = torch.tensor(z).to(device)
     #tmp.requires_grad_()
     return tmp
 
 def image_transform(img):
-    device = 'cuda:1' if torch.cuda.is_available() else 'cpu'
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
     transform = transforms.Compose([transforms.Resize(500), transforms.CenterCrop(500), transforms.ToTensor()])
     return transform(img).to(device)
