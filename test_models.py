@@ -30,7 +30,8 @@ def main():
     test_data_img = df[df['rank_latest'] == 1]
     num_users = df['reviewerID'].nunique()
     num_items = df['asin'].nunique()
-    test_img_dataloader = DataLoader(test_data_img, batch_size=128, shuffle=True)
+    test_data_img = AmazonCSJDatasetWithIMG(path=None, df=test_data_img)
+    test_img_dataloader = DataLoader(test_data_img, batch_size=32, shuffle=True)
     model_img = MatrixFactorizationWithImages(num_items=num_items, num_users=num_users).to(device=device)
     model_img.load_state_dict(torch.load('model_weights_img.pth', map_location=device))
 
@@ -38,6 +39,7 @@ def main():
     test_data = df[df['rank_latest'] == 1]
     num_users = df['reviewerID'].nunique()
     num_items = df['asin'].nunique()
+    test_data = AmazonCSJDataset(path=None, df=test_data)
     test_dataloader = DataLoader(test_data, batch_size=1024, shuffle=True)
     model = ModelMatrixFactorization(num_items=num_items, num_users=num_users, n_factors=100).to(device=device)
     model.load_state_dict(torch.load('model_weights.pth', map_location=device))
