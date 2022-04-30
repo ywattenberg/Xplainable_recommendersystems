@@ -34,13 +34,13 @@ def main():
     model_img = MatrixFactorizationWithImages(num_items=num_items, num_users=num_users).to(device=device)
     model_img.load_state_dict(torch.load('model_weights_img.pth', map_location=device))
 
-    df = pd.read_csv('/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ_img.csv')
+    df = pd.read_csv('/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ.csv')
     test_data = df[df['rank_latest'] == 1]
     num_users = df['reviewerID'].nunique()
     num_items = df['asin'].nunique()
     test_dataloader = DataLoader(test_data, batch_size=1024, shuffle=True)
     model = ModelMatrixFactorization(num_items=num_items, num_users=num_users, n_factors=100).to(device=device)
-    model.load_state_dict(torch.load('model_weights.pth', map_location=device))
+    model.load_state_dict(torch.load('model_weights_simple.pth', map_location=device))
 
     test_loop(test_img_dataloader, model_img, torch.nn.MSELoss())
     test_loop(test_dataloader, model, torch.nn.MSELoss())
