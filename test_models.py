@@ -42,28 +42,29 @@ def test_loop(dataloader, model, loss_fn):
     correct /= size
     print(f'Test Error \n Accuracy: {(100 * correct):>1f}%, Avg loss: {test_loss:>8f}')
 
-def main():
-    device = 'cuda' if torch.cuda.is_available() else 'cpu'
-    print(f'using {device} device')
+def test_simple(device):
+    df = pd.read_csv('/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ.csv')
+    test_data = df[df['rank_latest'] == 1]
+    num_users = df['reviewerID'].nunique()
+    num_items = df['asin'].nunique()
+    test_data = AmazonCSJDataset(path=None, df=test_data)
+    test_dataloader = DataLoader(test_data, batch_size=1024, shuffle=True)
+    model = ModelMatrixFactorization(num_items=num_items, num_users=num_users, n_factors=100).to(device=device)
+    model.load_state_dict(torch.load('model_weights_simple.pth', map_location=device))
+    test_loop(test_dataloader, model, torch.nn.MSELoss())
 
-    # df = pd.read_csv('/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ.csv')
-    # test_data = df[df['rank_latest'] == 1]
-    # num_users = df['reviewerID'].nunique()
-    # num_items = df['asin'].nunique()
-    # test_data = AmazonCSJDataset(path=None, df=test_data)
-    # test_dataloader = DataLoader(test_data, batch_size=1024, shuffle=True)
-    # model = ModelMatrixFactorization(num_items=num_items, num_users=num_users, n_factors=100).to(device=device)
-    # model.load_state_dict(torch.load('model_weights_simple.pth', map_location=device))
+def test_img(device):
+    df = pd.read_csv('/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ_with_img_no_BW.csv')
+    test_data_img = df[df['rank_latest'] == 1]
+    num_users = df['reviewerID'].nunique()
+    num_items = df['asin'].nunique()
+    test_data_img = AmazonCSJDatasetWithIMG(path=None, df=test_data_img)
+    test_img_dataloader = DataLoader(test_data_img, batch_size=32, shuffle=True)
+    model_img = MatrixFactorizationWithImages(num_items=num_items, num_users=num_users).to(device=device)
+    model_img.load_state_dict(torch.load('model_weights_img.pth', map_location=device))
+    test_loop_img(test_img_dataloader, model_img, torch.nn.MSELoss())
 
-    # df = pd.read_csv('/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ_with_img_no_BW.csv')
-    # test_data_img = df[df['rank_latest'] == 1]
-    # num_users = df['reviewerID'].nunique()
-    # num_items = df['asin'].nunique()
-    # test_data_img = AmazonCSJDatasetWithIMG(path=None, df=test_data_img)
-    # test_img_dataloader = DataLoader(test_data_img, batch_size=32, shuffle=True)
-    # model_img = MatrixFactorizationWithImages(num_items=num_items, num_users=num_users).to(device=device)
-    # model_img.load_state_dict(torch.load('model_weights_img.pth', map_location=device))
-
+def test_imgHD(device):
     df = pd.read_csv('/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ_imgHD.csv')
     test_data = df[df['rank_latest'] == 1]
     test_data = test_data.iloc[:100_000]
@@ -71,8 +72,11 @@ def main():
     test_dataloader = DataLoader(test_data, batch_size=32, shuffle=True)
     model = torch.load('entire_model.pth', map_location=device)
     test_loop_img(test_dataloader, model, torch.nn.MSELoss())
-    #test_loop_img(test_img_dataloader, model_img, torch.nn.MSELoss())
-    #test_loop(test_dataloader, model, torch.nn.MSELoss())
 
+def main():
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    print(f'using {device} device')
+    test_img(device)
+    
 if __name__ == '__main__':
     main()
