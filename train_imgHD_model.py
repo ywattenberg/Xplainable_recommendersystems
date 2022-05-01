@@ -8,7 +8,7 @@ from dataset.amazon_csj_dataset import AmazonCSJDatasetWithIMG
 from model.SimpleMatrixFactorization import ModelMatrixFactorization
 from model.MatrixFactorizationWithImages import MatrixFactorizationWithImages
 from dataset.amazon_csj_dataset import AmazonCSJDataset
-from dataset.amazon_dataset_utils import prepare_dataset
+from dataset.amazon_dataset_utils import *
 
 
 def train_loop(dataloader, model, loss_fn, optimizer):
@@ -19,6 +19,7 @@ def train_loop(dataloader, model, loss_fn, optimizer):
         loss = loss_fn(pred, y)
         loss.backward()
         optimizer.step()
+        
 
         if batch % 100 == 0:
             loss, current = loss.item(), batch * len(user_input)
@@ -45,13 +46,16 @@ def main():
     learning_rate = 0.01
     momentum = 0.9
     decay = 1e-8
-    batch_size = 32
-    epochs = 3
+    batch_size = 80
+    epochs = 4 
+
     #df = prepare_dataset('data/Clothing_Shoes_and_Jewelry_5.json')
-    df = pd.read_csv('data/compact_CSJ_with_img_no_BW.csv')
-    df['rank_latest'] = df.groupby(['reviewerID'])['unixReviewTime'].rank(method='first', ascending=False)
+    df = pd.read_csv('/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ_imgHD.csv')
+    #df = encode_df(df)
+    #df['rank_latest'] = df.groupby(['reviewerID'])['unixReviewTime'].rank(method='first', ascending=False)
     train_data = df[df['rank_latest'] != 1]
     test_data = df[df['rank_latest'] == 1]
+    #df.to_csv('/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ_imgHD.csv', index=False)
 
     num_users = df['reviewerID'].nunique()
     num_items = df['asin'].nunique()
@@ -65,23 +69,28 @@ def main():
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     print(f'using {device} device')
 
-    model = MatrixFactorizationWithImages(num_items=num_items, num_users=num_users, n_factors=100).to(device)
+    model = MatrixFactorizationWithImages(num_items=num_items, num_users=num_users).to(device)
 
     loss_fn = torch.nn.MSELoss()
     optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
     try:
-        #model.load_state_dict(torch.load('model_weights.pth', map_location=device))
+        model = torch.nn.DataParallel(model)
+        model.load_state_dict(torch.load('model_weights_imgHD.pth', map_location=device))
+        #model = torch.nn.DataParallel(model)
+        #model = torch.load('entire_model.pth')
         for t in range(epochs):
             print(f"Epoch {t + 1}\n-------------------------------")
             train_loop(train_dataloader, model, loss_fn, optimizer)
             test_loop(test_dataloader, model, loss_fn)
         print("Done!")
-        torch.save(model.state_dict(), 'entire_model_img_100f.pth')
+        torch.save(model.state_dict(), 'model_weights_imgHD.pth')
+        torch.save(model, 'entire_model.pth')
     except KeyboardInterrupt:
         print('Abort...')
         safe = input('Safe model [y]es/[n]o: ')
         if safe == 'y' or safe == 'Y':
-            torch.save(model.state_dict(), 'entire_model_img_100f.pth')
+            torch.save(model.state_dict(), 'model_weights_imgHD.pth')
+            torch.save(model, 'entire_model.pth')
         else: 
             print('Not saving...')
 
