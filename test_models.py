@@ -13,7 +13,7 @@ def test_loop_img(dataloader, model, loss_fn):
     test_loss, correct = 0, 0
 
     with torch.no_grad():
-        for batch, (user_input, item_input, img_input, y) in dataloader:
+        for batch, (user_input, item_input, img_input, y) in enumerate(dataloader):
             pred = model(img_input, user_input, item_input)
             test_loss += loss_fn(pred, y).item()
             correct += (pred - y).abs().type(torch.float).sum().item()
@@ -30,7 +30,7 @@ def test_loop(dataloader, model, loss_fn):
     test_loss, correct = 0, 0
 
     with torch.no_grad():
-        for batch, (user_input, item_input, y) in dataloader:
+        for batch, (user_input, item_input, y) in enumerate(dataloader):
             pred = model(user_input, item_input)
             test_loss += loss_fn(pred, y).item()
             correct += (pred - y).abs().type(torch.float).sum().item()
