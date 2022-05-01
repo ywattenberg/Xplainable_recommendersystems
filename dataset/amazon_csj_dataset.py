@@ -62,7 +62,7 @@ class AmazonCSJDatasetWithIMG(Dataset):
         return self.transform(userID), self.transform(productID), self.image_transform(image), self.label_transform(label)
 
 class AmazonCSJDatasetWithIMGHD(Dataset):
-    def __init__(self, path, transform=transform, label_transform=label_transform, image_transform=image_transform, df=None):
+    def __init__(self, path, transform=transform, label_transform=label_transform, image_transform=imageHD_transform, df=None):
         if(path != None):
             df = getDF(path)
             df = df[['overall', 'reviewerID', 'asin', 'unixReviewTime']]
