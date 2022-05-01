@@ -15,10 +15,11 @@ def main():
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
     df = pd.read_csv('/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ_imgHD.csv')
-    #num_users = df['reviewerID'].nunique()
-    #num_items = df['asin'].nunique()
+    num_users = df['reviewerID'].nunique()
+    num_items = df['asin'].nunique()
 
-    model = torch.load('entire_model.pth', map_location=device)
+    model = MatrixFactorizationWithImages(num_items=num_items, num_users=num_users).to(device)
+    model.load_state_dict(torch.load('model_weights_imgHD.pth', map_location=device).module.state_dict())
 
     test_data = df[df['rank_latest'] == 1]
 
