@@ -6,7 +6,7 @@ from pyparsing import alphas
 import torch
 from captum.attr import IntegratedGradients
 from model.MatrixFactorizationWithImages import MatrixFactorizationWithImages
-from dataset.amazon_csj_dataset import AmazonCSJDatasetWithIMG 
+from dataset.amazon_csj_dataset import AmazonCSJDatasetWithIMG, AmazonCSJDatasetWithIMGHD 
 
 
 
@@ -14,22 +14,20 @@ from dataset.amazon_csj_dataset import AmazonCSJDatasetWithIMG
 def main():
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
-    df = pd.read_csv('data/compact_CSJ_with_img_no_BW.csv')
-    num_users = df['reviewerID'].nunique()
-    num_items = df['asin'].nunique()
+    df = pd.read_csv('/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ_imgHD.csv')
+    #num_users = df['reviewerID'].nunique()
+    #num_items = df['asin'].nunique()
 
-    model = MatrixFactorizationWithImages(num_items=num_items, num_users=num_users).to(device)
-    model.load_state_dict(torch.load('model_weights_img.pth', map_location=device))
+    model = torch.load('entire_model.pth', map_location=device)
 
-    
     test_data = df[df['rank_latest'] == 1]
 
-    white_base_img = torch.ones([1,3,50,50], dtype=torch.float32, requires_grad=True).to(device)
-    black_base_img = torch.zeros([1,3,50,50], dtype=torch.float32, requires_grad=True).to(device)
+    white_base_img = torch.ones([1,3,500,500], dtype=torch.float32, requires_grad=True).to(device)
+    black_base_img = torch.zeros([1,3,500,500], dtype=torch.float32, requires_grad=True).to(device)
 
     ig = IntegratedGradients(model)
 
-    dataset = AmazonCSJDatasetWithIMG(path=None, df=test_data)
+    dataset = AmazonCSJDatasetWithIMGHD(path=None, df=test_data)
     length = len(dataset)
 
     for i in range(20):
@@ -53,7 +51,7 @@ def plot_attributions(image, attribution_mask_b, attribution_mask_w,  suptitle, 
     fig = plt.figure(figsize=(10,15))
 
     fig.add_subplot(3, 2, 1)
-    plt.imshow(np.zeros([50,50]))
+    plt.imshow(np.zeros([500,500]))
     plt.title('Empty')
     
     fig.add_subplot(3, 2, 2)
