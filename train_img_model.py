@@ -45,7 +45,7 @@ def main():
     learning_rate = 0.01
     momentum = 0.9
     decay = 1e-8
-    batch_size = 32
+    batch_size = 512
     epochs = 3
     #df = prepare_dataset('data/Clothing_Shoes_and_Jewelry_5.json')
     df = pd.read_csv('data/compact_CSJ_with_img_no_BW.csv')

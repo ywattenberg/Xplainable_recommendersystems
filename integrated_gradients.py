@@ -17,9 +17,15 @@ def main():
     df = pd.read_csv('/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ_imgHD.csv')
     num_users = df['reviewerID'].nunique()
     num_items = df['asin'].nunique()
+    
+    model = torch.nn.DataParallel(MatrixFactorizationWithImages(num_items=num_items, num_users=num_users).to(device=device))  
+    model.load_state_dict(torch.load('model_weights_imgHD.pth', map_location=device))
 
-    model = MatrixFactorizationWithImages(num_items=num_items, num_users=num_users).to(device)
-    model.load_state_dict(torch.load('model_weights_imgHD.pth', map_location=device).module.state_dict())
+    model = model.module
+    #model = torch.load('entire_model.pth')
+    #model = model.module
+    #model = MatrixFactorizationWithImages(num_items=num_items, num_users=num_users).to(device)
+    #model.load_state_dict(torch.load('model_weights_imgHD.pth', map_location=device).module.state_dict())
 
     test_data = df[df['rank_latest'] == 1]
 
@@ -38,9 +44,9 @@ def main():
         product_input = product_input.unsqueeze(dim=0)
         img_input = img_input.unsqueeze(dim=0)
 
-        img_attr_b, delta_b = ig.attribute((img_input), baselines=(black_base_img), additional_forward_args=(user_input, product_input), n_steps=200, method='gausslegendre',return_convergence_delta=True)
+        img_attr_b, delta_b = ig.attribute((img_input), baselines=(black_base_img), additional_forward_args=(user_input, product_input), n_steps=200, method='gausslegendre',return_convergence_delta=True, internal_batch_size=8)
 
-        img_attr_w, delta_w = ig.attribute((img_input), baselines=(white_base_img), additional_forward_args=(user_input, product_input), n_steps=200, method='gausslegendre',return_convergence_delta=True)
+        img_attr_w, delta_w = ig.attribute((img_input), baselines=(white_base_img), additional_forward_args=(user_input, product_input), n_steps=200, method='gausslegendre',return_convergence_delta=True, internal_batch_size=8)
 
         plot_attributions(img_input, img_attr_b, img_attr_w, f'Plot {i}').savefig(f'IG/{i}.png')
     

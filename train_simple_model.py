@@ -42,11 +42,11 @@ def test_loop(dataloader, model, loss_fn):
 
 
 def main():
-    learning_rate = 0.01
+    learning_rate = 0.1
     momentum = 0.9
     decay = 1e-8
     batch_size = 1024
-    epochs = 20
+    epochs = 15
 
     #df = prepare_dataset('data/Clothing_Shoes_and_Jewelry_5.json')
     df = pd.read_csv('data/compact_CSJ.csv')
@@ -66,7 +66,7 @@ def main():
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     print(f'using {device} device')
 
-    model = ModelMatrixFactorization(num_items=num_items, num_users=num_users, n_factors=100).to(device)
+    model = ModelMatrixFactorization(num_items=num_items, num_users=num_users, n_factors=50).to(device)
 
     loss_fn = torch.nn.MSELoss()
     optimizer = torch.optim.Adagrad(model.parameters(), lr=learning_rate)
@@ -77,12 +77,12 @@ def main():
             train_loop(train_dataloader, model, loss_fn, optimizer)
             test_loop(test_dataloader, model, loss_fn)
         print("Done!")
-        torch.save(model.state_dict(), 'model_weights_simple.pth')
+        torch.save(model.state_dict(), 'model_weights_simple_50.pth')
     except KeyboardInterrupt:
         print('Abort...')
         safe = input('Safe model [y]es/[n]o: ')
         if safe == 'y' or safe == 'Y':
-            torch.save(model.state_dict(), 'model_weights_simple.pth')
+            torch.save(model.state_dict(), 'model_weights_simple_50.pth')
         else: 
             print('Not saving...')
 
