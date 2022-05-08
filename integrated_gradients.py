@@ -37,52 +37,73 @@ def main():
     dataset = AmazonCSJDatasetWithIMGHD(path=None, df=test_data)
     length = len(dataset)
 
-    for i in range(20):
-        user_input, product_input, img_input, rating = dataset[randint(0, length)]
+    base_tensors = []
+    for i in range(100):
+        base_tensors.append(torch.load(f'IG_base_tensor/base_tensor_{i}.pt'))
 
+    for i in range(1):
+        user_input, product_input, img_input, rating = dataset[randint(0, length)]
         user_input = user_input.unsqueeze(dim=0)
         product_input = product_input.unsqueeze(dim=0)
         img_input = img_input.unsqueeze(dim=0)
 
-        img_attr_b, delta_b = ig.attribute((img_input), baselines=(black_base_img), additional_forward_args=(user_input, product_input), n_steps=200, method='gausslegendre',return_convergence_delta=True, internal_batch_size=8)
 
+        img_attr_b, delta_b = ig.attribute((img_input), baselines=(black_base_img), additional_forward_args=(user_input, product_input), n_steps=200, method='gausslegendre',return_convergence_delta=True, internal_batch_size=8)
         img_attr_w, delta_w = ig.attribute((img_input), baselines=(white_base_img), additional_forward_args=(user_input, product_input), n_steps=200, method='gausslegendre',return_convergence_delta=True, internal_batch_size=8)
 
-        plot_attributions(img_input, img_attr_b, img_attr_w, f'Plot {i}').savefig(f'IG/{i}.png')
-    
-def plot_attributions(image, attribution_mask_b, attribution_mask_w,  suptitle, alpha=0.4):
+        img_attr_rand = []
+        for tensor in base_tensors:
+            img_attr_rand.append(ig.attribute((img_input), baselines=(tensor), additional_forward_args=(user_input, product_input), n_steps=200, method='gausslegendre'), internal_batch_size=8)
+
+        img_attr_avg = torch.mean(torch.stack(img_attr_rand), dim=0)
+        plot_attributions(img_input, img_attr_b, img_attr_w, img_attr_avg, f'Plot {i}').savefig(f'IG/{i}.png')
+
+
+
+
+def plot_attributions(image, attribution_mask_b, attribution_mask_w,  attribution_mask_rand, suptitle, alpha=0.3):
     image = image.squeeze().cpu().detach()
+
     attribution_mask_b = attribution_mask_b.squeeze().cpu().detach().abs().sum(dim=0)
     attribution_mask_w = attribution_mask_w.squeeze().cpu().detach().abs().sum(dim=0)
-    
+    attribution_mask_rand = attribution_mask_rand.squeeze().cpu().detach().abs().sum(dim=0)
+
     fig = plt.figure(figsize=(10,15))
 
-    fig.add_subplot(3, 2, 1)
+    fig.add_subplot(4, 2, 1)
     plt.imshow(np.zeros([500,500]))
     plt.title('Empty')
     
-    fig.add_subplot(3, 2, 2)
+    fig.add_subplot(4, 2, 2)
     plt.imshow(image.permute(1, 2, 0))
     plt.title('Image')
 
-    fig.add_subplot(3, 2, 3)
+    fig.add_subplot(4, 2, 3)
     plt.imshow(attribution_mask_b)
     plt.title('Attribution Mask (Black)')
 
-    fig.add_subplot(3, 2, 4)
+    fig.add_subplot(4, 2, 4)
     plt.imshow(attribution_mask_b)
     plt.imshow(image.permute(1, 2, 0), alpha=alpha)
     plt.title('Overlay (Black)')
 
-    fig.add_subplot(3, 2, 5)
+    fig.add_subplot(4, 2, 5)
     plt.imshow(attribution_mask_w)
     plt.title('Attribution Mask (White)')
 
-    fig.add_subplot(3, 2, 6)
+    fig.add_subplot(4, 2, 6)
     plt.imshow(attribution_mask_w)
     plt.imshow(image.permute(1, 2, 0), alpha=alpha)
     plt.title('Overlay (White)')
 
+    fig.add_subplot(4, 2, 7)
+    plt.imshow(attribution_mask_rand)
+    plt.title('Attribution Mask (Random)')
+
+    fig.add_subplot(4, 2, 8)
+    plt.imshow(attribution_mask_rand)
+    plt.imshow(image.permute(1, 2, 0), alpha=alpha)
+    plt.title('Overlay (Random)')
     plt.tight_layout()
 
     fig.suptitle(suptitle)

@@ -1,16 +1,10 @@
 import numpy as np
 from dataset.amazon_dataset_utils import parse
 import json
+import torch
 
 if __name__ == '__main__':
-    path = 'data/meta_Clothing_Shoes_and_Jewelry.json'
-    wanted = set(['asin', 'imageURLHighRes', 'imageURL'])
-    with open('data/compact_meta.json', 'a') as file: 
-        for line in parse(path):
-            result = {}
-            for key in line.keys():
-                if key in wanted:
-                    result[key] = line[key]
-            if len(result) > 1:
-                file.write(json.dumps(result, indent=0).replace('\n', ''))
-                file.write('\n')
+    for i in range (0, 100):
+        t = torch.rand([1,3,500,500], dtype=torch.float32, requires_grad=True)
+        torch.save(t , f'IG_base_tensor/base_tensor_{i}.pt')
+        
