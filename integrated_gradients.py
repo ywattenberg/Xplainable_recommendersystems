@@ -1,12 +1,14 @@
-from random import randint
+import os
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from pyparsing import alphas
 import torch
+from random import randint
 from captum.attr import IntegratedGradients
 from model.MatrixFactorizationWithImages import MatrixFactorizationWithImages
-from dataset.amazon_csj_dataset import AmazonCSJDatasetWithIMG, AmazonCSJDatasetWithIMGHD 
+from dataset.amazon_dataset_utils import transform, imageHD_transform
+from PIL import Image
+
 
 
 
@@ -19,14 +21,17 @@ def main():
     num_items = df['asin'].nunique()
     
     model = torch.nn.DataParallel(MatrixFactorizationWithImages(num_items=num_items, num_users=num_users).to(device=device))  
-    model.load_state_dict(torch.load('model_weights_imgHD.pth', map_location=device))
+    model.load_state_dict(torch.load('/mnt/ds3lab-scratch/ywattenberg/models/model_weights_imgHD.pth', map_location=device))
 
     model = model.module
+    print(num_items)
+    print(num_users)
+    print(model)
     #model = torch.load('entire_model.pth')
     #model = model.module
     #model = MatrixFactorizationWithImages(num_items=num_items, num_users=num_users).to(device)
     #model.load_state_dict(torch.load('model_weights_imgHD.pth', map_location=device).module.state_dict())
-
+    train_data = df[df['rank_latest'] != 1]
     test_data = df[df['rank_latest'] == 1]
 
     white_base_img = torch.ones([1,3,500,500], dtype=torch.float32, requires_grad=True).to(device)
@@ -34,34 +39,68 @@ def main():
 
     ig = IntegratedGradients(model)
 
-    dataset = AmazonCSJDatasetWithIMGHD(path=None, df=test_data)
-    length = len(dataset)
+    #dataset = AmazonCSJDatasetWithIMGHD(path=None, df=test_data)
+    length = len(test_data)
 
     base_tensors = []
-    for i in range(100):
-        base_tensors.append(torch.load(f'IG_base_tensor/base_tensor_{i}.pt'))
+    for i in range(15):
+        base_tensors.append(torch.load(f'IG_base_tensor/base_tensor_{i}.pt').to(device))
 
-    for i in range(1):
-        user_input, product_input, img_input, rating = dataset[randint(0, length)]
-        user_input = user_input.unsqueeze(dim=0)
-        product_input = product_input.unsqueeze(dim=0)
-        img_input = img_input.unsqueeze(dim=0)
+    for i in range(20):
+        print('start')
+        while True:
+            index = randint(0, length)
+            user_input = test_data.iloc[index].userID
+            product_input = test_data.iloc[index].productID
+            img_input = Image.open(os.path.join('/mnt/ds3lab-scratch/ywattenberg/data/imagesHD/', f'{test_data.iloc[index].asin}.jpg'))
+            rating = test_data.iloc[index].overall
+            if rating > 3 and len(df[df['userID'] == user_input]) > 10:
+                break
+        
+        print('got ex')
+        
+        user_input_t = transform(user_input).unsqueeze(dim=0)
+        product_input_t = transform(product_input).unsqueeze(dim=0)
+        img_input_t = imageHD_transform(img_input).unsqueeze(dim=0)
+        print(user_input_t)
+        print(product_input_t)
+        print(img_input_t.size())
 
-
-        img_attr_b, delta_b = ig.attribute((img_input), baselines=(black_base_img), additional_forward_args=(user_input, product_input), n_steps=200, method='gausslegendre',return_convergence_delta=True, internal_batch_size=8)
-        img_attr_w, delta_w = ig.attribute((img_input), baselines=(white_base_img), additional_forward_args=(user_input, product_input), n_steps=200, method='gausslegendre',return_convergence_delta=True, internal_batch_size=8)
+        img_attr_b, delta_b = ig.attribute((img_input_t), baselines=(black_base_img), additional_forward_args=(user_input_t, product_input_t), 
+                                                n_steps=200, method='gausslegendre', return_convergence_delta=True, internal_batch_size=16)
+        img_attr_w, delta_w = ig.attribute((img_input_t), baselines=(white_base_img), additional_forward_args=(user_input_t, product_input_t), 
+                                                n_steps=200, method='gausslegendre', return_convergence_delta=True, internal_batch_size=16)
 
         img_attr_rand = []
         for tensor in base_tensors:
-            img_attr_rand.append(ig.attribute((img_input), baselines=(tensor), additional_forward_args=(user_input, product_input), n_steps=200, method='gausslegendre'), internal_batch_size=8)
+            img_attr_rand.append(ig.attribute((img_input_t), baselines=(tensor), additional_forward_args=(user_input_t, product_input_t), 
+                                                n_steps=100, method='gausslegendre', internal_batch_size=16))
 
+        prediction = model(img_input_t, user_input_t, product_input_t)
         img_attr_avg = torch.mean(torch.stack(img_attr_rand), dim=0)
-        plot_attributions(img_input, img_attr_b, img_attr_w, img_attr_avg, f'Plot {i}').savefig(f'IG/{i}.png')
+        plot_attributions(img_input_t, img_attr_b, img_attr_w, img_attr_avg, user_input, rating, prediction, f'Plot {i}').savefig(f'IG/{i}.png')
+        print('done with IG')
+        prev_liked = df[df['userID'] == user_input]
+        print(len(prev_liked))
+        j = 0
+        fig = plt.figure(figsize=(10,15))
+        for index, line in prev_liked.iterrows():
+            if j >= 6:
+                break
+            if line.overall > 3:
+                j += 1
+                print('in')
+                image = Image.open(os.path.join('/mnt/ds3lab-scratch/ywattenberg/data/imagesHD/', f'{line.asin}.jpg'))
+                fig.add_subplot(3, 2, j)
+                #plt.plot([1,2,3,4,10], [54,56,8,84,54])
+                plt.imshow(image)
+                plt.title(f'rating {line.overall}')
+        plt.tight_layout()        
+        fig.savefig(f'IG/{i}_e.png')
 
 
 
-
-def plot_attributions(image, attribution_mask_b, attribution_mask_w,  attribution_mask_rand, suptitle, alpha=0.3):
+def plot_attributions(image, attribution_mask_b, attribution_mask_w,  attribution_mask_rand, user_input, rating, prediction,suptitle, alpha=0.3):
     image = image.squeeze().cpu().detach()
 
     attribution_mask_b = attribution_mask_b.squeeze().cpu().detach().abs().sum(dim=0)
@@ -72,7 +111,7 @@ def plot_attributions(image, attribution_mask_b, attribution_mask_w,  attributio
 
     fig.add_subplot(4, 2, 1)
     plt.imshow(np.zeros([500,500]))
-    plt.title('Empty')
+    plt.title(f'User {user_input}, rated: {rating}, {prediction}')
     
     fig.add_subplot(4, 2, 2)
     plt.imshow(image.permute(1, 2, 0))
