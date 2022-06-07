@@ -2,13 +2,15 @@ import torch
 import numpy as np
 from torchvision import models
 from model.CNNModels import vgg16Model
+from model.CNNModels import EfficentNetB4Model
+from model.MixerModel import mixer_l16
 
 class MatrixFactorizationWithImages(torch.nn.Module):
 
-    def __init__(self, num_users, num_items, n_factors=50):
+    def __init__(self, num_users, num_items, n_factors=100, feature_extractor=None):
         super().__init__()
 
-        self.image_feature_extractor = vgg16Model(num_of_latents=n_factors)
+        self.image_feature_extractor = feature_extractor
 
         self.user_factors = torch.nn.Embedding(num_users, n_factors, sparse=True)
         self.item_factors = torch.nn.Embedding(num_items, n_factors, sparse=True)
@@ -27,3 +29,15 @@ class MatrixFactorizationWithImages(torch.nn.Module):
         pred = self.user_biases(user) + self.item_biases(item)
         pred += (self.user_factors(user) * item_v).sum(1, keepdim=True)
         return pred.squeeze(dim=1)
+
+def get_MF_with_images_vgg16(num_users, num_items, n_factors=100):
+    return MatrixFactorizationWithImages(num_users=num_users, num_items=num_items, n_factors=n_factors,            
+                                            feature_extractor=vgg16Model(num_of_latents=n_factors))
+    
+def get_MF_with_images_EfficentNetB4(num_users, num_items, n_factors=100):
+    return MatrixFactorizationWithImages(num_users=num_users, num_items=num_items, n_factors=n_factors,            
+                                            feature_extractor=EfficentNetB4Model(num_of_latents=n_factors))
+
+def get_MF_with_images_Mixerl16(num_users, num_items, n_factors=100):
+    return MatrixFactorizationWithImages(num_users=num_users, num_items=num_items, n_factors=n_factors,            
+                                            feature_extractor=mixer_l16(num_classes=n_factors))
