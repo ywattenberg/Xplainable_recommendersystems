@@ -51,10 +51,10 @@ def main():
 
         for x in range(img_input.width):
             for y in range(img_input.height):
-                if color_dist(img_input.getpixel((x,y)), (255, 255 ,255)) > 30:
+                if color_dist(img_input.getpixel((x,y)), (255, 255 ,255)) < 30:
                     r, g, b = img_input.getpixel((x,y))
-                    b = b+150 if b < 155 else 255
-                    img_input.putpixel((x,y), (r, g, b))
+                    r = r+150 if r < 155 else 255
+                    img_input.putpixel((x,y), (0, 0, 0))
         
         user_input_t = transform(user_input).unsqueeze(dim=0)
         product_input_t = transform(product_input).unsqueeze(dim=0)

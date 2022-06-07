@@ -8,7 +8,8 @@ from captum.attr import IntegratedGradients
 from model.MatrixFactorizationWithImages import MatrixFactorizationWithImages
 from dataset.amazon_dataset_utils import transform, imageHD_transform
 from PIL import Image
-
+from test_opencv import simple_filter
+import cv2
 
 
 
@@ -53,8 +54,9 @@ def main():
             user_input = test_data.iloc[index].userID
             product_input = test_data.iloc[index].productID
             img_input = Image.open(os.path.join('/mnt/ds3lab-scratch/ywattenberg/data/imagesHD/', f'{test_data.iloc[index].asin}.jpg'))
+            tmp_img = cv2.imread(os.path.join('/mnt/ds3lab-scratch/ywattenberg/data/imagesHD/', f'{test_data.iloc[index].asin}.jpg'))
             rating = test_data.iloc[index].overall
-            if rating > 3 and len(df[df['userID'] == user_input]) > 10:
+            if rating > 3 and len(df[df['userID'] == user_input]) > 10 and not simple_filter(tmp_img):
                 break
         
         print('got ex')
@@ -78,16 +80,16 @@ def main():
 
         prediction = model(img_input_t, user_input_t, product_input_t)
         img_attr_avg = torch.mean(torch.stack(img_attr_rand), dim=0)
-        plot_attributions(img_input_t, img_attr_b, img_attr_w, img_attr_avg, user_input, rating, prediction, f'Plot {i}').savefig(f'IG/{i}.png')
+        plot_attributions(img_input_t, img_attr_b, img_attr_w, img_attr_avg, user_input, rating, prediction.item() , f'Plot {i}').savefig(f'IG/{i}.png')
         print('done with IG')
         prev_liked = df[df['userID'] == user_input]
         print(len(prev_liked))
         j = 0
         fig = plt.figure(figsize=(10,15))
-        for index, line in prev_liked.iterrows():
+        for i, line in prev_liked.iterrows():
             if j >= 6:
                 break
-            if line.overall > 3:
+            if line.overall > 3 and line.asin != test_data.iloc[index].asin:
                 j += 1
                 print('in')
                 image = Image.open(os.path.join('/mnt/ds3lab-scratch/ywattenberg/data/imagesHD/', f'{line.asin}.jpg'))
@@ -97,6 +99,7 @@ def main():
                 plt.title(f'rating {line.overall}')
         plt.tight_layout()        
         fig.savefig(f'IG/{i}_e.png')
+        plt.close(fig)
 
 
 
