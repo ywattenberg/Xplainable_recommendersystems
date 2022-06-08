@@ -6,6 +6,8 @@ matplotlib
 requests
 captum
 
+git+https://github.com/rwightman/pytorch-image-models.git
+
 --find-links https://download.pytorch.org/whl/cu113/torch_stable.html
 torch==1.10.2+cu113
 torchvision==0.11.3+cu113
