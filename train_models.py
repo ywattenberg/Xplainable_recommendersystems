@@ -1,4 +1,3 @@
-import imp
 from pickletools import optimize
 import numpy as np
 import pandas as pd
@@ -7,7 +6,7 @@ from torch.utils.data import DataLoader
 from torchvision import transforms
 
 from dataset.amazon_csj_dataset import AmazonCSJDatasetWithIMGHD, AmazonCSJDatasetWithIMG
-from model.MatrixFactorizationWithImages import get_MF_with_images_vgg16, get_MF_with_images_EfficentNetB4, get_MF_with_images_Mixerl16
+from models.MatrixFactorizationWithImages import get_MF_with_images_vgg16, get_MF_with_images_EfficentNetB4, get_MF_with_images_Mixerl16
 from dataset.amazon_dataset_utils import *
 from trainer import Trainer
 
@@ -19,8 +18,8 @@ def get_trainer_imageHD(model_fn):
     num_users = df['reviewerID'].nunique()
     num_items = df['asin'].nunique()
 
-    train_data = AmazonCSJDatasetWithIMG(path=None, df=train_data)
-    test_data = AmazonCSJDatasetWithIMG(path=None, df=test_data)
+    train_data = AmazonCSJDatasetWithIMGHD(path=None, df=train_data)
+    test_data = AmazonCSJDatasetWithIMGHD(path=None, df=test_data)
 
     model = model_fn(num_items=num_items, num_users=num_users)
     
