@@ -3,9 +3,8 @@ import pandas as pd
 import torch
 import warnings
 from datetime import datetime
-
 from torch.utils.data import DataLoader, random_split
-from torchvision import transforms
+
 
 
 
@@ -60,6 +59,7 @@ class Trainer():
                 print(f'loss: {loss:>7f}  [{current:>5d}/{size:>5d}]')
             
             if batch % 1000 == 0:
+                print('saving model...')
                 torch.save(self.model, 'tmp_entire_model_imp.pth')
 
     def test_loop(self):
