@@ -87,4 +87,4 @@ class AmazonCSJDatasetWithIMGHD(Dataset):
         #image = np.transpose(image, (2,0,1))
 
 
-        return self.transform(userID), self.transform(productID), self.image_transform(image), self.label_transform(label)
+        return self.image_transform(image).to('cuda'), self.transform(userID), self.transform(productID),  self.label_transform(label)

@@ -11,7 +11,7 @@ def mixer_l16(num_classes=1000, **kwargs):
         param.requires_grad = False
     
     mixer.head = nn.Sequential(nn.Linear(mixer.head.in_features, num_classes))
-
+    mixer.eval()
     for param in mixer.head.parameters():
          param.requires_grad = True
     
