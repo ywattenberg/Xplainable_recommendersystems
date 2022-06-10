@@ -13,8 +13,10 @@ from trainer import Trainer
 
 def get_trainer_imageHD(model_fn):
     df = pd.read_csv('/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ_imgHD.csv')
-    train_data = df[df['rank_latest'] != 1]
-    test_data = df[df['rank_latest'] == 1]
+    # train_data = df[df['rank_latest'] != 1]
+    # test_data = df[df['rank_latest'] == 1]
+    train_data = pd.read_csv('/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ_imgHD_subset_train.csv')
+    test_data = pd.read_csv('/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ_imgHD_subset_test.csv')
     num_users = df['reviewerID'].nunique()
     num_items = df['asin'].nunique()
 
