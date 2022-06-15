@@ -1,7 +1,7 @@
 import torch
 import numpy as np
 from torchvision import models
-from model.CNNModels import vgg16Model
+from models.CNNModels import vgg16Model
 
 class ModelMatrixFactorization(torch.nn.Module):
 

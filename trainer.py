@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import torch
 import warnings
+import time
 from datetime import datetime
 from torch.utils.data import DataLoader, random_split
 
@@ -9,7 +10,7 @@ from torch.utils.data import DataLoader, random_split
 
 
 class Trainer():
-    def __init__(self, model, train_data, test_data, loss_fn, split_test:float=None, optimizer=None, device=None, batch_size=32, num_epochs=10, shuffle=True, name=None):
+    def __init__(self, model, train_data, test_data, loss_fn, optimizer, split_test:float=None, device=None, batch_size=32, epochs=10, shuffle=True, name=None):
         if model == None or train_data == None:
             raise Exception("Model and train_data must be specified")
 
@@ -38,7 +39,7 @@ class Trainer():
             self.name = name
 
         self.batch_size = batch_size
-        self.num_epochs = num_epochs
+        self.num_epochs = epochs
         self.model = model.to(self.device)
         self.loss_fn = loss_fn
 
@@ -47,16 +48,19 @@ class Trainer():
 
     def train_loop(self):
         size = len(self.train_dataloader.dataset)
+        time_at_start = time.time()*1000
         for batch, (*input, y) in enumerate(self.train_dataloader):
             self.optimizer.zero_grad()
             pred = self.model(*input)
             loss = self.loss_fn(pred, y)
             loss.backward()
             self.optimizer.step()
-
+            
             if batch % 100 == 0:
                 loss, current = loss.item(), batch * len(input[0])
                 print(f'loss: {loss:>7f}  [{current:>5d}/{size:>5d}]')
+                run_time = time.time()*1000 - time_at_start
+                print(f'time running: {run_time}, time per elem: {run_time/(current+1)}')
             
             if batch % 1000 == 0:
                 print('saving model...')
@@ -75,7 +79,7 @@ class Trainer():
                 correct += (pred - y).abs().type(torch.float).sum().item()
 
                 if batch % 100 == 0:
-                    print(f'Current testloss: {test_loss / batch:>8f}')
+                    print(f'Current testloss: {test_loss / (batch+1):>8f}')
 
         test_loss /= num_batches
         correct /= size
