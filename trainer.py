@@ -79,7 +79,7 @@ class Trainer():
                 correct += (pred - y).abs().type(torch.float).sum().item()
 
                 if batch % 100 == 0:
-                    print(f'Current testloss: {test_loss / batch:>8f}')
+                    print(f'Current testloss: {test_loss / (batch+1):>8f}')
 
         test_loss /= num_batches
         correct /= size

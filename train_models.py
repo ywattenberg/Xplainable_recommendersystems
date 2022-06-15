@@ -15,17 +15,18 @@ from timm.data.transforms_factory import create_transform
 
 def get_trainer_imageHD(model_fn, timm_model=False, image_transform=None):
     df = pd.read_csv('/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ_imgHD.csv')
-    # train_data = df[df['rank_latest'] != 1]
-    # test_data = df[df['rank_latest'] == 1]
-    train_data = pd.read_csv('/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ_imgHD_subset_train.csv')
-    test_data = pd.read_csv('/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ_imgHD_subset_test.csv')
+    train_data = df[df['rank_latest'] != 1]
+    test_data = df[df['rank_latest'] == 1]
+    #train_data = pd.read_csv('/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ_imgHD_subset_train.csv')
+    #test_data = pd.read_csv('/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ_imgHD_subset_test.csv')
     num_users = df['reviewerID'].nunique()
     num_items = df['asin'].nunique()
 
 
 
-    model = torch.nn.DataParallel(model_fn(num_items=num_items, num_users=num_users))
-    
+    #model = torch.nn.DataParallel(model_fn(num_items=num_items, num_users=num_users))
+    model = torch.load('tmp_entire_model_imp.pth')
+
     if timm_model:
         config = resolve_data_config({}, model=model)
         image_transform = create_transform(**config)
@@ -36,7 +37,7 @@ def get_trainer_imageHD(model_fn, timm_model=False, image_transform=None):
     loss_fn = torch.nn.MSELoss()
     optimizer = torch.optim.SGD(model.parameters(), lr=0.01)
     
-    return Trainer(model, train_data, test_data, loss_fn, optimizer, batch_size=200, epochs=4)
+    return Trainer(model, train_data, test_data, loss_fn, optimizer, batch_size=1000, epochs=4)
 
 
 def get_trainer_vgg16_HD():
