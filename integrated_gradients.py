@@ -5,11 +5,10 @@ import matplotlib.pyplot as plt
 import torch
 from random import randint
 from captum.attr import IntegratedGradients
-from model.MatrixFactorizationWithImages import MatrixFactorizationWithImages
+from models.MatrixFactorizationWithImages import MatrixFactorizationWithImages
 from dataset.amazon_dataset_utils import transform, imageHD_transform
 from PIL import Image
 from test_opencv import simple_filter
-import cv2
 
 
 
@@ -17,26 +16,29 @@ import cv2
 def main():
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
-    df = pd.read_csv('/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ_imgHD.csv')
-    num_users = df['reviewerID'].nunique()
-    num_items = df['asin'].nunique()
+    #df = pd.read_csv('/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ_imgHD.csv')
+    #num_users = df['reviewerID'].nunique()
+    #num_items = df['asin'].nunique()
     
-    model = torch.nn.DataParallel(MatrixFactorizationWithImages(num_items=num_items, num_users=num_users).to(device=device))  
-    model.load_state_dict(torch.load('/mnt/ds3lab-scratch/ywattenberg/models/model_weights_imgHD.pth', map_location=device))
+    model = torch.load('/mnt/ds3lab-scratch/ywattenberg/models/entire_model_2022-06-09_10.pth').to(device)
 
     model = model.module
-    print(num_items)
-    print(num_users)
     print(model)
     #model = torch.load('entire_model.pth')
     #model = model.module
     #model = MatrixFactorizationWithImages(num_items=num_items, num_users=num_users).to(device)
     #model.load_state_dict(torch.load('model_weights_imgHD.pth', map_location=device).module.state_dict())
-    train_data = df[df['rank_latest'] != 1]
-    test_data = df[df['rank_latest'] == 1]
+    
+    # train_data = df[df['rank_latest'] != 1]
+    # test_data = df[df['rank_latest'] == 1]
+    
+    train_data = pd.read_csv('/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ_imgHD_subset_train.csv')
+    test_data = pd.read_csv('/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ_imgHD_subset_test.csv')
 
     white_base_img = torch.ones([1,3,500,500], dtype=torch.float32, requires_grad=True).to(device)
     black_base_img = torch.zeros([1,3,500,500], dtype=torch.float32, requires_grad=True).to(device)
+    
+
 
     ig = IntegratedGradients(model)
 
