@@ -7,6 +7,7 @@ import cv2
 from random import randint
 from captum.attr import IntegratedGradients
 from PIL import Image
+from torchvision import transforms as T
 from test_opencv import simple_filter
 from timm.data import resolve_data_config
 from timm.data.transforms_factory import create_transform
@@ -78,8 +79,8 @@ def main():
 
         img_attr_rand = []
         for tensor in base_tensors:
-            tensor = transform.ToPILImage()(tensor.squeeze(dim=0))
-            img_attr_rand.append(ig.attribute((img_input_t), baselines=image_transform(tensor).to(device), additional_forward_args=(user_input_t, product_input_t), 
+            tensor = T.ToPILImage()(tensor.squeeze(dim=0))
+            img_attr_rand.append(ig.attribute((img_input_t), baselines=image_transform(tensor).to(device).unsqueeze(0), additional_forward_args=(user_input_t, product_input_t), 
                                                 n_steps=100, method='gausslegendre', internal_batch_size=16))
 
         prediction = model(img_input_t, user_input_t, product_input_t)
