@@ -37,8 +37,8 @@ def main():
 
     # white_base_img = torch.ones([1,3,224,224], dtype=torch.float32, requires_grad=True).to(device)
     # black_base_img = torch.zeros([1,3,224,224], dtype=torch.float32, requires_grad=True).to(device)
-    white_base_img = np.ones(1,3,224,224)
-    black_base_img = np.zeros(1,3,224,224)
+    white_base_img = image_transform(np.ones(1,3,224,224)).to(device)
+    black_base_img = image_transform(np.zeros(1,3,224,224)).to(device)
 
 
     ig = IntegratedGradients(model)
