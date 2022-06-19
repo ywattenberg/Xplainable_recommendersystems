@@ -3,20 +3,20 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import torch
+import cv2
 from random import randint
 from captum.attr import IntegratedGradients
-from models.MatrixFactorizationWithImages import MatrixFactorizationWithImages
-from dataset.amazon_dataset_utils import transform, imageHD_transform
 from PIL import Image
 from test_opencv import simple_filter
+from timm.data import resolve_data_config
+from timm.data.transforms_factory import create_transform
 
-
-
+from dataset.amazon_dataset_utils import transform, imageHD_transform
 
 def main():
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
-    #df = pd.read_csv('/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ_imgHD.csv')
+    df = pd.read_csv('/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ_imgHD.csv')
     #num_users = df['reviewerID'].nunique()
     #num_items = df['asin'].nunique()
     
@@ -35,9 +35,12 @@ def main():
     train_data = pd.read_csv('/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ_imgHD_subset_train.csv')
     test_data = pd.read_csv('/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ_imgHD_subset_test.csv')
 
-    white_base_img = torch.ones([1,3,500,500], dtype=torch.float32, requires_grad=True).to(device)
-    black_base_img = torch.zeros([1,3,500,500], dtype=torch.float32, requires_grad=True).to(device)
-    
+    image_transform = create_transform(**resolve_data_config({}, model=model))
+
+
+    white_base_img = torch.ones([1,3,224,224], dtype=torch.float32, requires_grad=True).to(device)
+    black_base_img = torch.zeros([1,3,224,224], dtype=torch.float32, requires_grad=True).to(device)
+
 
 
     ig = IntegratedGradients(model)
@@ -65,7 +68,7 @@ def main():
         
         user_input_t = transform(user_input).unsqueeze(dim=0)
         product_input_t = transform(product_input).unsqueeze(dim=0)
-        img_input_t = imageHD_transform(img_input).unsqueeze(dim=0)
+        img_input_t = image_transform(img_input).unsqueeze(dim=0)
         print(user_input_t)
         print(product_input_t)
         print(img_input_t.size())
@@ -77,7 +80,7 @@ def main():
 
         img_attr_rand = []
         for tensor in base_tensors:
-            img_attr_rand.append(ig.attribute((img_input_t), baselines=(tensor), additional_forward_args=(user_input_t, product_input_t), 
+            img_attr_rand.append(ig.attribute((img_input_t), baselines=image_transform(tensor), additional_forward_args=(user_input_t, product_input_t), 
                                                 n_steps=100, method='gausslegendre', internal_batch_size=16))
 
         prediction = model(img_input_t, user_input_t, product_input_t)
