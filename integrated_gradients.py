@@ -63,9 +63,9 @@ def main():
         
         print('got ex')
         
-        user_input_t = transform(user_input).unsqueeze(dim=0)
-        product_input_t = transform(product_input).unsqueeze(dim=0)
-        img_input_t = image_transform(img_input).unsqueeze(dim=0)
+        user_input_t = transform(user_input).unsqueeze(dim=0).to(device)
+        product_input_t = transform(product_input).unsqueeze(dim=0).to(device)
+        img_input_t = image_transform(img_input).unsqueeze(dim=0).to(device)
         print(user_input_t)
         print(product_input_t)
         print(img_input_t.size())
