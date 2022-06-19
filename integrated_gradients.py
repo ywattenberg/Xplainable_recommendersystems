@@ -35,8 +35,8 @@ def main():
     image_transform = create_transform(**resolve_data_config({}, model=model))
 
 
-    # white_base_img = torch.ones([1,3,224,224], dtype=torch.float32, requires_grad=True).to(device)
-    # black_base_img = torch.zeros([1,3,224,224], dtype=torch.float32, requires_grad=True).to(device)
+    # white_base_img = image_transform(torch.ones([3,224,224], dtype=torch.float32, requires_grad=True)).to(device)
+    # black_base_img = image_transform(torch.zeros([3,224,224], dtype=torch.float32, requires_grad=True)).to(device)
     white_base_img = image_transform(Image.fromarray(np.ones([224,224,3], dtype=np.uint8))).to(device).unsqueeze(0)
     black_base_img = image_transform(Image.fromarray(np.zeros([224,224,3], dtype=np.uint8))).to(device).unsqueeze(0)
 
@@ -78,7 +78,8 @@ def main():
 
         img_attr_rand = []
         for tensor in base_tensors:
-            img_attr_rand.append(ig.attribute((img_input_t), baselines=image_transform(tensor), additional_forward_args=(user_input_t, product_input_t), 
+            tensor = transform.ToPILImage()(tensor.squeeze(dim=0))
+            img_attr_rand.append(ig.attribute((img_input_t), baselines=image_transform(tensor).to(device), additional_forward_args=(user_input_t, product_input_t), 
                                                 n_steps=100, method='gausslegendre', internal_batch_size=16))
 
         prediction = model(img_input_t, user_input_t, product_input_t)
