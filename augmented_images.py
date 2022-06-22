@@ -35,7 +35,7 @@ def main():
     image_transform = create_transform(**resolve_data_config({}, model=model))
 
     length = len(test_data)
-    for i in range(1):
+    for i in range(10):
         index = randint(0, length)
         user_input = test_data.iloc[index].userID
         product_input = test_data.iloc[index].productID
@@ -48,18 +48,17 @@ def main():
         pred = model(img_input_t, user_input_t, product_input_t)
         change = np.zeros([25,14,14], dtype=np.float32)
         print(pred)
+
         with torch.no_grad():
             for x in range(14):
                 for y in range(14):
                     tmp = img_input_t.clone()
                     tmp[0, x*16:  x*16 + 16,  y*16: y*16 + 16, :] = 0.0
-                    pred_tmp = model(img_input_t, user_input_t, product_input_t)
-                    print(pred_tmp)
+                    pred_tmp = model(tmp, user_input_t, product_input_t)
                     change[0,x,y] = pred_tmp.cpu().numpy() - pred.cpu().numpy()
 
                     tmp[0, x*16:  x*16 + 16,  y*16: y*16 + 16, :] = 1.0
-                    pred_tmp = model(img_input_t, user_input_t, product_input_t)
-                    print(pred_tmp)
+                    pred_tmp = model(tmp, user_input_t, product_input_t)
                     change[1,x,y] = pred_tmp.cpu().numpy() - pred.cpu().numpy()
 
 
