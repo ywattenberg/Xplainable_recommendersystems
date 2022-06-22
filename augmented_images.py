@@ -4,7 +4,10 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import torch
 from random import randint
-from model.MatrixFactorizationWithImages import MatrixFactorizationWithImages
+
+from timm.data import resolve_data_config
+from timm.data.transforms_factory import create_transform
+
 from dataset.amazon_dataset_utils import transform, imageHD_transform
 from PIL import Image
 import math
@@ -22,16 +25,17 @@ def main():
     num_users = df['reviewerID'].nunique()
     num_items = df['asin'].nunique()
     
-    model = torch.nn.DataParallel(MatrixFactorizationWithImages(num_items=num_items, num_users=num_users).to(device=device))  
-    model.load_state_dict(torch.load('/mnt/ds3lab-scratch/ywattenberg/models/model_weights_imgHD.pth', map_location=device))
+    model = torch.load('/mnt/ds3lab-scratch/ywattenberg/models/tmp_entire_model_imp.pth').to(device)
 
     model = model.module
 
-    #train_data = df[df['rank_latest'] != 1]
+    train_data = df[df['rank_latest'] != 1]
     test_data = df[df['rank_latest'] == 1]
 
+    image_transform = create_transform(**resolve_data_config({}, model=model))
+
     length = len(test_data)
-    for i in range(10):
+    for i in range(1):
         index = randint(0, length)
         user_input = test_data.iloc[index].userID
         product_input = test_data.iloc[index].productID
@@ -39,32 +43,50 @@ def main():
 
         user_input_t = transform(user_input).unsqueeze(dim=0)
         product_input_t = transform(product_input).unsqueeze(dim=0)
-        img_input_t = imageHD_transform(img_input).unsqueeze(dim=0)
-
-        pred = model(img_input_t, user_input_t, product_input_t)
-        print(pred)
-        fig = plt.figure(figsize=(10,15))
-        fig.add_subplot(2, 1, 1)
-        plt.imshow(img_input)
-        plt.title(pred.item())
-
-
-        for x in range(img_input.width):
-            for y in range(img_input.height):
-                if color_dist(img_input.getpixel((x,y)), (255, 255 ,255)) < 30:
-                    r, g, b = img_input.getpixel((x,y))
-                    r = r+150 if r < 155 else 255
-                    img_input.putpixel((x,y), (0, 0, 0))
+        img_input_t = image_transform(img_input).unsqueeze(dim=0)
         
-        user_input_t = transform(user_input).unsqueeze(dim=0)
-        product_input_t = transform(product_input).unsqueeze(dim=0)
-        img_input_t = imageHD_transform(img_input).unsqueeze(dim=0)
+        pred = model(img_input_t, user_input_t, product_input_t)
+        change = np.zeros([25,14,14], dtype=np.float32)
+        with torch.no_grad():
+            for x in range(14):
+                for y in range(14):
+                    tmp = img_input_t.clone()
+                    tmp[0, x*16:  x*16 + 16,  y*16: y*16 + 16, :] = torch.zeros(16, 16, 3)
+                    pred_tmp = model(img_input_t, user_input_t, product_input_t)
+                    change[0,x,y] = pred_tmp.cpu().numpy() - pred.cpu().numpy()
 
-        fig.add_subplot(2, 1, 2)
-        plt.imshow(img_input)
-        plt.title(model(img_input_t, user_input_t, product_input_t).item())
+                    tmp[0, x*16:  x*16 + 16,  y*16: y*16 + 16, :] = torch.ones(16, 16, 3)
+                    pred_tmp = model(img_input_t, user_input_t, product_input_t)
+                    change[1,x,y] = pred_tmp.cpu().numpy() - pred.cpu().numpy()
 
+
+        diff = np.abs(change)
+        diff_w = diff[0,:,:]
+        diff_b = diff[1,:,:]
+        
+        max_w = np.max(diff_w)
+        max_b = np.max(diff_b)
+
+        attr_w = np.zeros([224,224,3], dtype=np.float32)
+        attr_b = np.zeros([224,224,3], dtype=np.float32)
+        for x in range(14):
+            for y in range(14):
+                attr_w[x*16:  x*16 + 16,  y*16: y*16 + 16, :] = diff_w[x,y]/max_w
+                attr_b[x*16:  x*16 + 16,  y*16: y*16 + 16, :] = diff_b[x,y]/max_b
+
+        fig = plt.figure(figsize=(10,15))
+        fig.add_subplot(2,2,1)
+        plt.imshow(attr_b)
+        fig.add_subplot(2,2,2)
+        plt.imshow(attr_b)
+        plt.imshow(img_input_t.squeeze().cpu().detach(), alpha=0.3)
+        fig.add_subplot(2,2,3)
+        plt.imshow(attr_w)
+        fig.add_subplot(2,2,4)
+        plt.imshow(attr_w)
+        plt.imshow(img_input_t.squeeze().cpu().detach(), alpha=0.3)
         fig.savefig(f'test_img/{i}.jpg')
+        plt.close(fig)
     
 
 if __name__ == '__main__':
