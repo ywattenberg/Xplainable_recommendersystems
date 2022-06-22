@@ -35,7 +35,7 @@ def main():
     image_transform = create_transform(**resolve_data_config({}, model=model))
 
     length = len(test_data)
-    for i in range(10):
+    for i in range(1):
         index = randint(0, length)
         user_input = test_data.iloc[index].userID
         product_input = test_data.iloc[index].productID
@@ -46,20 +46,28 @@ def main():
         img_input_t = image_transform(img_input).unsqueeze(dim=0).to(device)
         
         pred = model(img_input_t, user_input_t, product_input_t)
-        change = np.zeros([25,14,14], dtype=np.float32)
+        change = np.zeros([2,14,14], dtype=np.float32)
         print(pred)
 
         with torch.no_grad():
             for x in range(14):
                 for y in range(14):
                     tmp = img_input_t.clone()
-                    tmp[0, x*16:  x*16 + 16,  y*16: y*16 + 16, :] = 0.0
+                    tmp[0, :, x*16:  x*16 + 16,  y*16: y*16 + 16] = 0.0
                     pred_tmp = model(tmp, user_input_t, product_input_t)
                     change[0,x,y] = pred_tmp.cpu().numpy() - pred.cpu().numpy()
+                    fig = plt.figure(figsize=(10,15))
+                    plt.imshow(tmp.squeeze().cpu().detach().permute(1, 2, 0).numpy())
+                    fig.savefig(f'test_img/{i}_b.jpg')
+                    plt.close(fig)
 
-                    tmp[0, x*16:  x*16 + 16,  y*16: y*16 + 16, :] = 1.0
+                    tmp[0, :, x*16:  x*16 + 16,  y*16: y*16 + 16] = 1.0
                     pred_tmp = model(tmp, user_input_t, product_input_t)
                     change[1,x,y] = pred_tmp.cpu().numpy() - pred.cpu().numpy()
+                    fig = plt.figure(figsize=(10,15))
+                    plt.imshow(tmp.squeeze().cpu().detach().permute(1, 2, 0).numpy())
+                    fig.savefig(f'test_img/{i}_w.jpg')
+                    plt.close(fig)
 
 
         diff = np.abs(change)
