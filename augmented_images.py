@@ -72,12 +72,12 @@ def main():
         max_b = np.max(diff_b)
         print(max_w)
         print(max_b)
-        attr_w = np.zeros([224,224,3], dtype=np.float32)
-        attr_b = np.zeros([224,224,3], dtype=np.float32)
+        attr_w = np.zeros([224,224], dtype=np.float32)
+        attr_b = np.zeros([224,224], dtype=np.float32)
         for x in range(14):
             for y in range(14):
-                attr_w[x*16:  x*16 + 16,  y*16: y*16 + 16, :] = diff_w[x,y]/float(max_w)
-                attr_b[x*16:  x*16 + 16,  y*16: y*16 + 16, :] = diff_b[x,y]/float(max_b)
+                attr_w[x*16:  x*16 + 16,  y*16: y*16 + 16] = diff_w[x,y]/float(max_w)
+                attr_b[x*16:  x*16 + 16,  y*16: y*16 + 16] = diff_b[x,y]/float(max_b)
 
         fig = plt.figure(figsize=(10,15))
         fig.add_subplot(2,2,1)
