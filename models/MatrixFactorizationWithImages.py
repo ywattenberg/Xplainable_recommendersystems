@@ -68,5 +68,5 @@ def get_MF_with_images_Mixerl16(num_users, num_items, n_factors=100):
                                             feature_extractor=mixer_l16(num_classes=n_factors))
 
 def get_MF_with_images_Mixer12_split(num_users, num_items, n_factors=100):
-    return MatrixFactorizationWithImages(num_users=num_users, num_items=num_items, n_factors=n_factors,            
+    return MatrixFactorizationWithImages_split(num_users=num_users, num_items=num_items, n_factors=n_factors,            
                                             feature_extractor=resmlp_12(num_classes=90))
