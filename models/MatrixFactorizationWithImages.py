@@ -50,11 +50,8 @@ class MatrixFactorizationWithImages_split(torch.nn.Module):
         image_factors = self.image_feature_extractor(image)
         item_factors = self.item_factors(item)
         item_v = torch.cat((image_factors, item_factors), 1)
-        print(item_v.size())
         user_embedding = self.user_factors(user)
-        print(user_embedding.size())
         pred = self.user_biases(user) + self.item_biases(item)
-        print(pred.size())
         pred += (user_embedding * item_v).sum(1, keepdim=True)
         return pred.squeeze(dim=1)
 
