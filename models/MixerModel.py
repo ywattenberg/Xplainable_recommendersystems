@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import numpy as np
 
-from timm.models import mixer_l16_224_in21k 
+from timm.models import mixer_l16_224_in21k, resmlp_12_224
 
 
 def mixer_l16(num_classes=1000, **kwargs):
@@ -17,7 +17,7 @@ def mixer_l16(num_classes=1000, **kwargs):
     
     return mixer
 
-def resmlp_12_224(num_classes=1000, **kwargs):
+def resmlp_12(num_classes=1000, **kwargs):
     mixer = resmlp_12_224(True)
     for param in mixer.parameters():
         param.requires_grad = False

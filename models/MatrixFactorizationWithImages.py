@@ -3,7 +3,7 @@ import numpy as np
 from torchvision import models
 from models.CNNModels import vgg16Model
 from models.CNNModels import EfficentNetB4Model
-from models.MixerModel import mixer_l16, resmlp_12_224
+from models.MixerModel import mixer_l16, resmlp_12
 
 class MatrixFactorizationWithImages(torch.nn.Module):
 
@@ -67,6 +67,6 @@ def get_MF_with_images_Mixerl16(num_users, num_items, n_factors=100):
     return MatrixFactorizationWithImages(num_users=num_users, num_items=num_items, n_factors=n_factors,            
                                             feature_extractor=mixer_l16(num_classes=n_factors))
 
-def get_MF_with_images_Mixerb12_split(num_users, num_items, n_factors=100):
+def get_MF_with_images_Mixer12_split(num_users, num_items, n_factors=100):
     return MatrixFactorizationWithImages(num_users=num_users, num_items=num_items, n_factors=n_factors,            
-                                            feature_extractor=resmlp_12_224(num_classes=90))
+                                            feature_extractor=resmlp_12(num_classes=90))
