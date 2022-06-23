@@ -49,10 +49,13 @@ class MatrixFactorizationWithImages_split(torch.nn.Module):
     def forward(self, image, user, item):
         image_factors = self.image_feature_extractor(image)
         item_factors = self.item_factors(item)
-
         item_v = torch.cat((image_factors, item_factors), 1)
+        print(item_v.size())
+        user_embedding = self.user_factors(user)
+        print(user_embedding.size())
         pred = self.user_biases(user) + self.item_biases(item)
-        pred += (self.user_factors(user) * item_v).sum(1, keepdim=True)
+        print(pred.size())
+        pred += (user_embedding * item_v).sum(1, keepdim=True)
         return pred.squeeze(dim=1)
 
 def get_MF_with_images_vgg16(num_users, num_items, n_factors=100):
