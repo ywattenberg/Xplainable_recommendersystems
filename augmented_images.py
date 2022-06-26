@@ -21,21 +21,24 @@ def color_dist(p1, p2):
 def main():
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
-    df = pd.read_csv('/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ_imgHD.csv')
-    num_users = df['reviewerID'].nunique()
-    num_items = df['asin'].nunique()
+    #df = pd.read_csv('/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ_imgHD.csv')
+    #num_users = df['reviewerID'].nunique()
+    #num_items = df['asin'].nunique()
     
     model = torch.load('/mnt/ds3lab-scratch/ywattenberg/models/tmp_entire_model_imp.pth').to(device)
 
     model = model.module
 
-    train_data = df[df['rank_latest'] != 1]
-    test_data = df[df['rank_latest'] == 1]
+    #train_data = df[df['rank_latest'] != 1]
+    #test_data = df[df['rank_latest'] == 1]
 
+    train_data = pd.read_csv('/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ_imgHD_subset_train.csv') 
+    test_data = pd.read_csv('/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ_imgHD_subset_test.csv')
+    
     image_transform = create_transform(**resolve_data_config({}, model=model))
 
     length = len(test_data)
-    for i in range(1):
+    for i in range(10):
         index = randint(0, length)
         user_input = test_data.iloc[index].userID
         product_input = test_data.iloc[index].productID
@@ -56,12 +59,10 @@ def main():
                     tmp[0, :, x*16:  x*16 + 16,  y*16: y*16 + 16] = 0.0
                     pred_tmp = model(tmp, user_input_t, product_input_t)
                     change[0,x,y] = pred_tmp.cpu().numpy() - pred.cpu().numpy()
-                    fig = plt.figure(figsize=(10,15))
                 
                     tmp[0, :, x*16:  x*16 + 16,  y*16: y*16 + 16] = 1.0
                     pred_tmp = model(tmp, user_input_t, product_input_t)
                     change[1,x,y] = pred_tmp.cpu().numpy() - pred.cpu().numpy()
-                    fig = plt.figure(figsize=(10,15))
 
 
         diff = np.abs(change)

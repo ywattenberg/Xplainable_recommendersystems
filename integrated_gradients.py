@@ -21,7 +21,7 @@ def main():
     #num_users = df['reviewerID'].nunique()
     #num_items = df['asin'].nunique()
     
-    model = torch.load('/mnt/ds3lab-scratch/ywattenberg/models/tmp_entire_model_imp.pth').to(device)
+    model = torch.load('/mnt/ds3lab-scratch/ywattenberg/models/mixer_14_10f_small_data.pth').to(device)
 
     model = model.module
     print(model)
@@ -30,9 +30,10 @@ def main():
     #model = MatrixFactorizationWithImages(num_items=num_items, num_users=num_users).to(device)
     #model.load_state_dict(torch.load('model_weights_imgHD.pth', map_location=device).module.state_dict())
     
-    train_data = df[df['rank_latest'] != 1]
-    test_data = df[df['rank_latest'] == 1]
-    
+    #train_data = df[df['rank_latest'] != 1]
+    #test_data = df[df['rank_latest'] == 1]
+    train_data = pd.read_csv('/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ_imgHD_subset_train.csv') 
+    test_data = pd.read_csv('/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ_imgHD_subset_test.csv')
     image_transform = create_transform(**resolve_data_config({}, model=model))
 
 
