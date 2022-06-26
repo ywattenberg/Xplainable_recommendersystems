@@ -70,3 +70,7 @@ def get_MF_with_images_Mixerl16(num_users, num_items, n_factors=100):
 def get_MF_with_images_Mixer12_split(num_users, num_items, n_factors=100):
     return MatrixFactorizationWithImages_split(num_users=num_users, num_items=num_items, n_factors=n_factors,            
                                             feature_extractor=resmlp_12(num_classes=90))
+
+def get_MF_with_images_efficent_split(num_users, num_items, n_factors=100):
+    return MatrixFactorizationWithImages_split(num_users=num_users, num_items=num_items, n_factors=n_factors,            
+                                            feature_extractor=EfficentNetB4Model(num_of_latents=90))

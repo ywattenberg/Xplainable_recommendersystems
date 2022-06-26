@@ -16,7 +16,6 @@ class AmazonCSJDataset(Dataset):
             self.df = df
         self.transform = transform
         self.label_transform = label_transform
-        self.image_transform = image_transform
 
     def __len__(self):
         return len(self.df)
@@ -27,9 +26,6 @@ class AmazonCSJDataset(Dataset):
         label = self.df.overall.iloc[index]
 
         asin = self.df.asin.iloc[index]
-        #image = Image.open(os.path.join('./data/images', f'{asin}.jpg'))
-        #image = np.transpose(image, (2,0,1))
-
 
         return self.transform(userID), self.transform(productID), self.label_transform(label)
 
@@ -62,7 +58,7 @@ class AmazonCSJDatasetWithIMG(Dataset):
         return self.transform(userID), self.transform(productID), self.image_transform(image), self.label_transform(label)
 
 class AmazonCSJDatasetWithIMGHD(Dataset):
-    def __init__(self, path, transform=transform, label_transform=label_transform, image_transform=imageHD_transform, df=None):
+    def __init__(self, path, Atransform=transform, Alabel_transform=label_transform, Aimage_transform=imageHD_transform, df=None):
         if(path != None):
             df = getDF(path)
             df = df[['overall', 'reviewerID', 'asin', 'unixReviewTime']]
@@ -70,9 +66,16 @@ class AmazonCSJDatasetWithIMGHD(Dataset):
             self.df.to_csv('data/compact_CSJ_with_img.csv', index=False)
         else:
             self.df = df
-        self.transform = transform
-        self.label_transform = label_transform
-        self.image_transform = image_transform
+        self.transform = Atransform
+        self.label_transform = Alabel_transform
+        self.image_transform = Aimage_transform
+
+        if image_transform is None:
+            self.image_transform = imageHD_transform
+        if transform is None:
+            self.transform = transform
+        if label_transform is None:
+            self.label_transform = label_transform
 
     def __len__(self):
         return len(self.df)

@@ -6,7 +6,7 @@ from torch.utils.data import DataLoader
 from torchvision import transforms
 
 from dataset.amazon_csj_dataset import AmazonCSJDatasetWithIMGHD, AmazonCSJDatasetWithIMG
-from models.MatrixFactorizationWithImages import get_MF_with_images_Mixer12_split, get_MF_with_images_vgg16, get_MF_with_images_EfficentNetB4, get_MF_with_images_Mixerl16
+from models.MatrixFactorizationWithImages import get_MF_with_images_Mixer12_split, get_MF_with_images_efficent_split, get_MF_with_images_vgg16,  get_MF_with_images_EfficentNetB4, get_MF_with_images_Mixerl16
 from dataset.amazon_dataset_utils import *
 from trainer import Trainer
 
@@ -51,9 +51,12 @@ def get_trainer_efficent_HD():
 def get_trainer_mixer_HD_split():
      return get_trainer_imageHD(get_MF_with_images_Mixer12_split, timm_model=True)
 
+def get_trainer_efficent_HD_split():
+     return get_trainer_imageHD(get_MF_with_images_efficent_split)
+
 if __name__ == '__main__':
     #trainer = get_trainer_vgg16_HD()
     #trainer = get_trainer_efficent_HD()
-    trainer = get_trainer_mixer_HD_split()
+    trainer = get_trainer_efficent_HD_split()
     trainer.train_test()
     
