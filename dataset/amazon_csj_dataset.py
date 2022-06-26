@@ -70,11 +70,11 @@ class AmazonCSJDatasetWithIMGHD(Dataset):
         self.label_transform = Alabel_transform
         self.image_transform = Aimage_transform
 
-        if image_transform is None:
+        if Aimage_transform is None:
             self.image_transform = imageHD_transform
-        if transform is None:
+        if Atransform is None:
             self.transform = transform
-        if label_transform is None:
+        if Alabel_transform is None:
             self.label_transform = label_transform
 
     def __len__(self):
