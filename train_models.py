@@ -30,13 +30,13 @@ def get_trainer_imageHD(model_fn, timm_model=False, image_transform=None):
         config = resolve_data_config({}, model=model)
         image_transform = create_transform(**config)
 
-    train_data = AmazonCSJDatasetWithIMGHD(path=None, df=train_data, image_transform=image_transform)
-    test_data = AmazonCSJDatasetWithIMGHD(path=None, df=test_data, image_transform=image_transform)
+    train_data = AmazonCSJDatasetWithIMGHD(path=None, df=train_data, Aimage_transform=image_transform)
+    test_data = AmazonCSJDatasetWithIMGHD(path=None, df=test_data, Aimage_transform=image_transform)
 
     loss_fn = torch.nn.MSELoss()
     optimizer = torch.optim.SGD(model.parameters(), lr=0.01)
     
-    return Trainer(model, train_data, test_data, loss_fn, optimizer, batch_size=1000, epochs=4)
+    return Trainer(model, train_data, test_data, loss_fn, optimizer, batch_size=200, epochs=4)
 
 
 def get_trainer_vgg16_HD():
