@@ -60,6 +60,6 @@ def get_trainer_mixer_HD_only():
 if __name__ == '__main__':
     #trainer = get_trainer_vgg16_HD()
     #trainer = get_trainer_efficent_HD()
-    trainer = get_trainer_efficent_HD_split()
+    trainer = get_trainer_mixer_HD_only()
     trainer.train_test()
     
