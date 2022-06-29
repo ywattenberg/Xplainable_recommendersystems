@@ -6,7 +6,7 @@ from torch.utils.data import DataLoader
 from torchvision import transforms
 
 from dataset.amazon_csj_dataset import AmazonCSJDatasetWithIMGHD, AmazonCSJDatasetWithIMG
-from models.MatrixFactorizationWithImages import get_MF_with_images_Mixer12_split, get_MF_with_images_efficent_split, get_MF_with_images_vgg16,  get_MF_with_images_EfficentNetB4, get_MF_with_images_Mixerl16
+from models.MatrixFactorizationWithImages import get_MF_with_images_Mixer12_split, get_MF_with_images_Efficent_split, get_MF_with_images_vgg16,  get_MF_with_images_EfficentNetB4, get_MF_with_images_Mixerl16, get_MF_only_images_Mixer12
 from dataset.amazon_dataset_utils import *
 from trainer import Trainer
 
@@ -30,8 +30,8 @@ def get_trainer_imageHD(model_fn, timm_model=False, image_transform=None):
         config = resolve_data_config({}, model=model)
         image_transform = create_transform(**config)
 
-    train_data = AmazonCSJDatasetWithIMGHD(path=None, df=train_data, Aimage_transform=image_transform)
-    test_data = AmazonCSJDatasetWithIMGHD(path=None, df=test_data, Aimage_transform=image_transform)
+    train_data = AmazonCSJDatasetWithIMGHD(path=None, df=train_data, prev_image_transform=image_transform)
+    test_data = AmazonCSJDatasetWithIMGHD(path=None, df=test_data, prev_image_transform=image_transform)
 
     loss_fn = torch.nn.MSELoss()
     optimizer = torch.optim.SGD(model.parameters(), lr=0.01)
@@ -52,7 +52,10 @@ def get_trainer_mixer_HD_split():
      return get_trainer_imageHD(get_MF_with_images_Mixer12_split, timm_model=True)
 
 def get_trainer_efficent_HD_split():
-     return get_trainer_imageHD(get_MF_with_images_efficent_split)
+     return get_trainer_imageHD(get_MF_with_images_Efficent_split)
+
+def get_trainer_mixer_HD_only():
+     return get_trainer_imageHD(get_MF_only_images_Mixer12, timm_model=True)
 
 if __name__ == '__main__':
     #trainer = get_trainer_vgg16_HD()

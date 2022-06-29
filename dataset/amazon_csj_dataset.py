@@ -58,7 +58,7 @@ class AmazonCSJDatasetWithIMG(Dataset):
         return self.transform(userID), self.transform(productID), self.image_transform(image), self.label_transform(label)
 
 class AmazonCSJDatasetWithIMGHD(Dataset):
-    def __init__(self, path, Atransform=transform, Alabel_transform=label_transform, Aimage_transform=imageHD_transform, df=None):
+    def __init__(self, path, prev_transform=transform, prev_label_transform=label_transform, prev_image_transform=imageHD_transform, df=None):
         if(path != None):
             df = getDF(path)
             df = df[['overall', 'reviewerID', 'asin', 'unixReviewTime']]
@@ -66,15 +66,15 @@ class AmazonCSJDatasetWithIMGHD(Dataset):
             self.df.to_csv('data/compact_CSJ_with_img.csv', index=False)
         else:
             self.df = df
-        self.transform = Atransform
-        self.label_transform = Alabel_transform
-        self.image_transform = Aimage_transform
+        self.transform = prev_transform
+        self.label_transform = prev_label_transform
+        self.image_transform = prev_image_transform
 
-        if Aimage_transform is None:
+        if prev_image_transform is None:
             self.image_transform = imageHD_transform
-        if Atransform is None:
+        if prev_transform is None:
             self.transform = transform
-        if Alabel_transform is None:
+        if prev_label_transform is None:
             self.label_transform = label_transform
 
     def __len__(self):
