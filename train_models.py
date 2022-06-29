@@ -36,7 +36,7 @@ def get_trainer_imageHD(model_fn, timm_model=False, image_transform=None):
     loss_fn = torch.nn.MSELoss()
     optimizer = torch.optim.SGD(model.parameters(), lr=0.01)
     
-    return Trainer(model, train_data, test_data, loss_fn, optimizer, batch_size=200, epochs=4)
+    return Trainer(model, train_data, test_data, loss_fn, optimizer, batch_size=500, epochs=4)
 
 
 def get_trainer_vgg16_HD():
