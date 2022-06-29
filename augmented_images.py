@@ -25,7 +25,7 @@ def main():
     #num_users = df['reviewerID'].nunique()
     #num_items = df['asin'].nunique()
     
-    model = torch.load('/mnt/ds3lab-scratch/ywattenberg/models/tmp_entire_model_imp.pth').to(device)
+    model = torch.load('/mnt/ds3lab-scratch/ywattenberg/models/efficent_b4_10f_small_data.pth').to(device)
 
     model = model.module
 
@@ -35,7 +35,7 @@ def main():
     train_data = pd.read_csv('/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ_imgHD_subset_train.csv') 
     test_data = pd.read_csv('/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ_imgHD_subset_test.csv')
     
-    image_transform = create_transform(**resolve_data_config({}, model=model))
+    image_transform = imageHD_transform #create_transform(**resolve_data_config({}, model=model))
 
     length = len(test_data)
     for i in range(10):
