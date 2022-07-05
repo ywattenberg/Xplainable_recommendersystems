@@ -50,7 +50,20 @@ def main():
         
         pred = model(img_input_t, user_input_t, product_input_t)
         change = np.zeros([2,14,14], dtype=np.float32)
+        change2 = np.zeros([2,7,7], dtype=np.float32)
         print(pred)
+
+        with torch.no_grad():
+            for x in range(7):
+                for y in range(7):
+                    tmp = img_input_t.clone()
+                    tmp[0, :, x*32:  x*32 + 32,  y*32: y*32 + 32] = 0.0
+                    pred_tmp = model(tmp, user_input_t, product_input_t)
+                    change2[0,x,y] = pred_tmp.cpu().numpy() - pred.cpu().numpy()
+                
+                    tmp[0, :, x*32:  x*32 + 32,  y*32: y*32 + 32] = 1.0
+                    pred_tmp = model(tmp, user_input_t, product_input_t)
+                    change2[1,x,y] = pred_tmp.cpu().numpy() - pred.cpu().numpy()
 
         with torch.no_grad():
             for x in range(14):
@@ -64,8 +77,8 @@ def main():
                     pred_tmp = model(tmp, user_input_t, product_input_t)
                     change[1,x,y] = pred_tmp.cpu().numpy() - pred.cpu().numpy()
 
-
-        diff = np.abs(change)
+        print(change2)
+        diff = np.abs(change2)
         diff_w = diff[0,:,:]
         diff_b = diff[1,:,:]
         
@@ -75,22 +88,27 @@ def main():
         print(max_b)
         attr_w = np.zeros([224,224], dtype=np.float32)
         attr_b = np.zeros([224,224], dtype=np.float32)
-        for x in range(14):
-            for y in range(14):
-                attr_w[x*16:  x*16 + 16,  y*16: y*16 + 16] = diff_w[x,y]/float(max_w)
-                attr_b[x*16:  x*16 + 16,  y*16: y*16 + 16] = diff_b[x,y]/float(max_b)
+        for x in range(7):
+            for y in range(7):
+                attr_w[x*32:  x*32 + 32,  y*32: y*32 + 32] = diff_w[x,y]/float(max_w)
+                attr_b[x*32:  x*32 + 32,  y*32: y*32 + 32] = diff_b[x,y]/float(max_b)
+
+        # for x in range(14):
+        #     for y in range(14):
+        #         attr_w[x*16:  x*16 + 16,  y*16: y*16 + 16] = diff_w[x,y]/float(max_w)
+        #         attr_b[x*16:  x*16 + 16,  y*16: y*16 + 16] = diff_b[x,y]/float(max_b)
 
         fig = plt.figure(figsize=(10,15))
         fig.add_subplot(2,2,1)
         plt.imshow(attr_b)
         fig.add_subplot(2,2,2)
         plt.imshow(attr_b)
-        plt.imshow(img_input_t.squeeze().cpu().detach().permute(1, 2, 0).numpy(), alpha=0.3)
+        plt.imshow(img_input_t.squeeze().cpu().detach().permute(1, 2, 0).numpy(), alpha=0.2)
         fig.add_subplot(2,2,3)
         plt.imshow(attr_w)
         fig.add_subplot(2,2,4)
         plt.imshow(attr_w)
-        plt.imshow(img_input_t.squeeze().cpu().detach().permute(1, 2, 0).numpy(), alpha=0.3)
+        plt.imshow(img_input_t.squeeze().cpu().detach().permute(1, 2, 0).numpy(), alpha=0.2)
         fig.savefig(f'test_img/{i}.jpg')
         plt.close(fig)
     
