@@ -116,6 +116,13 @@ def plot_attributions(image, attribution_mask_b, attribution_mask_w,  attributio
     attribution_mask_w = attribution_mask_w.squeeze().cpu().detach().abs().sum(dim=0)
     attribution_mask_rand = attribution_mask_rand.squeeze().cpu().detach().abs().sum(dim=0)
 
+    mean = attribution_mask_w.numpy()
+    for x in range(14):
+        for y in range(14):
+            tmp = np.sum(mean[x*16:  x*16 + 16,  y*16: y*16 + 16])
+            mean[x*16:  x*16 + 16,  y*16: y*16 + 16] = tmp
+
+
     fig = plt.figure(figsize=(10,15))
 
     fig.add_subplot(4, 2, 1)
@@ -136,11 +143,11 @@ def plot_attributions(image, attribution_mask_b, attribution_mask_w,  attributio
     plt.title('Overlay (Black)')
 
     fig.add_subplot(4, 2, 5)
-    plt.imshow(attribution_mask_w)
+    plt.imshow(mean)
     plt.title('Attribution Mask (White)')
 
     fig.add_subplot(4, 2, 6)
-    plt.imshow(attribution_mask_w)
+    plt.imshow(mean)
     plt.imshow(image.permute(1, 2, 0), alpha=alpha)
     plt.title('Overlay (White)')
 
