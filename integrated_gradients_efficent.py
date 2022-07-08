@@ -102,8 +102,8 @@ def plot_attributions(image, attribution_mask_b, attribution_mask_w,  attributio
         for y in range(25):
             tmp = np.sum(attribution_mask_b[x*20:  x*20 + 20,  y*20: y*20 + 20])
             attribution_mask_b[x*20:  x*20 + 20,  y*20: y*20 + 20] = tmp
-    attribution_mask_b = attribution_mask_b.numpy()
 
+    attribution_mask_w = attribution_mask_w.numpy()
     for x in range(25):
         for y in range(25):
             tmp = np.sum(attribution_mask_w[x*20:  x*20 + 20,  y*20: y*20 + 20])
