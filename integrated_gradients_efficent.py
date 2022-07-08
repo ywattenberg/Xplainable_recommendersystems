@@ -87,24 +87,6 @@ def main():
         fig.savefig(f'IG/{i}.png')
         plt.close(fig)
         print('done with IG')
-        prev_liked = df[df['userID'] == user_input]
-        print(len(prev_liked))
-        j = 0
-        fig = plt.figure(figsize=(10,15))
-        for i, line in prev_liked.iterrows():
-            if j >= 6:
-                break
-            if line.overall > 3 and line.asin != test_data.iloc[index].asin:
-                j += 1
-                print('in')
-                image = Image.open(os.path.join('/mnt/ds3lab-scratch/ywattenberg/data/imagesHD/', f'{line.asin}.jpg'))
-                fig.add_subplot(3, 2, j)
-                #plt.plot([1,2,3,4,10], [54,56,8,84,54])
-                plt.imshow(image)
-                plt.title(f'rating {line.overall}')
-        plt.tight_layout()        
-        fig.savefig(f'IG/{i}_e.png')
-        plt.close(fig)
 
 
 
@@ -114,6 +96,18 @@ def plot_attributions(image, attribution_mask_b, attribution_mask_w,  attributio
     attribution_mask_b = attribution_mask_b.squeeze().cpu().detach().abs().sum(dim=0)
     attribution_mask_w = attribution_mask_w.squeeze().cpu().detach().abs().sum(dim=0)
     attribution_mask_rand = attribution_mask_rand.squeeze().cpu().detach().abs().sum(dim=0)
+
+    attribution_mask_w = attribution_mask_w.numpy()
+    for x in range(25):
+        for y in range(25):
+            tmp = np.sum(attribution_mask_w[x*20:  x*20 + 20,  y*20: y*20 + 20])
+            attribution_mask_w[x*20:  x*20 + 20,  y*20: y*20 + 20] = tmp
+
+    attribution_mask_rand = attribution_mask_rand.numpy()
+    for x in range(25):
+        for y in range(25):
+            tmp = np.sum(attribution_mask_rand[x*20:  x*20 + 20,  y*20: y*20 + 20])
+            attribution_mask_rand[x*20:  x*20 + 20,  y*20: y*20 + 20] = tmp
 
     fig = plt.figure(figsize=(10,15))
 
