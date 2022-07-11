@@ -118,23 +118,26 @@ def plot_attributions(image, attribution_mask_b, attribution_mask_w,  attributio
     attribution_mask_w = attribution_mask_w.squeeze().cpu().detach().abs().sum(dim=0)
     attribution_mask_rand = attribution_mask_rand.squeeze().cpu().detach().abs().sum(dim=0)
 
+    side_lenght = 16
+    num_of_quads = int(attribution_mask_b.shape[0]/side_lenght)
+    print(num_of_quads)
     attribution_mask_b = attribution_mask_b.numpy()
-    for x in range(14):
-        for y in range(14):
-            tmp = np.sum(attribution_mask_b[x*16:  x*16 + 16,  y*16: y*16 + 16])
-            attribution_mask_b[x*16:  x*16 + 16,  y*16: y*16 + 16] = tmp
+    for x in range(num_of_quads):
+        for y in range(num_of_quads):
+            tmp = np.sum(attribution_mask_b[x*side_lenght:  x*side_lenght + side_lenght,  y*side_lenght: y*side_lenght + side_lenght])
+            attribution_mask_b[x*side_lenght:  x*side_lenght + side_lenght,  y*side_lenght: y*side_lenght + side_lenght] = tmp
 
     attribution_mask_w = attribution_mask_w.numpy()
-    for x in range(14):
-        for y in range(14):
-            tmp = np.sum(attribution_mask_w[x*16:  x*16 + 16,  y*16: y*16 + 16])
-            attribution_mask_w[x*16:  x*16 + 16,  y*16: y*16 + 16] = tmp
+    for x in range(num_of_quads):
+        for y in range(num_of_quads):
+            tmp = np.sum(attribution_mask_w[x*side_lenght:  x*side_lenght + side_lenght,  y*side_lenght: y*side_lenght + side_lenght])
+            attribution_mask_w[x*side_lenght:  x*side_lenght + side_lenght,  y*side_lenght: y*side_lenght + side_lenght] = tmp
 
     attribution_mask_rand = attribution_mask_rand.numpy()
-    for x in range(14):
-        for y in range(14):
-            tmp = np.sum(attribution_mask_rand[x*16:  x*16 + 16,  y*16: y*16 + 16])
-            attribution_mask_rand[x*16:  x*16 + 16,  y*16: y*16 + 16] = tmp
+    for x in range(num_of_quads):
+        for y in range(num_of_quads):
+            tmp = np.sum(attribution_mask_rand[x*side_lenght:  x*side_lenght + side_lenght,  y*side_lenght: y*side_lenght + side_lenght])
+            attribution_mask_rand[x*side_lenght:  x*side_lenght + side_lenght,  y*side_lenght: y*side_lenght + side_lenght] = tmp
 
 
     fig = plt.figure(figsize=(10,15))
