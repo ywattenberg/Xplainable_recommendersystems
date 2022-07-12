@@ -118,7 +118,7 @@ def plot_attributions(image, attribution_mask_b, attribution_mask_w,  attributio
     attribution_mask_w = attribution_mask_w.squeeze().cpu().detach().abs().sum(dim=0)
     attribution_mask_rand = attribution_mask_rand.squeeze().cpu().detach().abs().sum(dim=0)
 
-    side_lenght = 16
+    side_lenght = 28
     num_of_quads = int(attribution_mask_b.shape[0]/side_lenght)
     print(num_of_quads)
     attribution_mask_b = attribution_mask_b.numpy()
