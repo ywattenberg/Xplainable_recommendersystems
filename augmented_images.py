@@ -25,7 +25,7 @@ def main():
     #num_users = df['reviewerID'].nunique()
     #num_items = df['asin'].nunique()
     
-    model = torch.load('/mnt/ds3lab-scratch/ywattenberg/models/efficent_b4_10f_small_data.pth').to(device)
+    model = torch.load('/mnt/ds3lab-scratch/ywattenberg/models/mixer_14_10f_small_data.pth').to(device)
 
     model = model.module
 
@@ -35,7 +35,8 @@ def main():
     train_data = pd.read_csv('/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ_imgHD_subset_train.csv') 
     test_data = pd.read_csv('/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ_imgHD_subset_test.csv')
     
-    image_transform = imageHD_transform #create_transform(**resolve_data_config({}, model=model))
+    # image_transform = imageHD_transform 
+    image_transform = create_transform(**resolve_data_config({}, model=model))
 
     length = len(test_data)
     for i in range(10):
@@ -50,35 +51,24 @@ def main():
         
         pred = model(img_input_t, user_input_t, product_input_t)
         change = np.zeros([2,14,14], dtype=np.float32)
-        change2 = np.zeros([2,7,7], dtype=np.float32)
-        print(pred)
+        mean = img_input_t.mean()
 
         with torch.no_grad():
-            for x in range(7):
-                for y in range(7):
+            for x in range(8):
+                for y in range(8):
                     tmp = img_input_t.clone()
-                    tmp[0, :, x*32:  x*32 + 32,  y*32: y*32 + 32] = 0.0
-                    pred_tmp = model(tmp, user_input_t, product_input_t)
-                    change2[0,x,y] = pred_tmp.cpu().numpy() - pred.cpu().numpy()
-                
-                    tmp[0, :, x*32:  x*32 + 32,  y*32: y*32 + 32] = 1.0
-                    pred_tmp = model(tmp, user_input_t, product_input_t)
-                    change2[1,x,y] = pred_tmp.cpu().numpy() - pred.cpu().numpy()
-
-        with torch.no_grad():
-            for x in range(14):
-                for y in range(14):
-                    tmp = img_input_t.clone()
-                    tmp[0, :, x*16:  x*16 + 16,  y*16: y*16 + 16] = 0.0
+                    tmp[0, :, x*28:  x*28 + 28,  y*28: y*28 + 28] = 0.0
+                    #tmp[0, :, x*16:  x*16 + 16,  y*16: y*16 + 16] = 0.0
                     pred_tmp = model(tmp, user_input_t, product_input_t)
                     change[0,x,y] = pred_tmp.cpu().numpy() - pred.cpu().numpy()
-                
-                    tmp[0, :, x*16:  x*16 + 16,  y*16: y*16 + 16] = 1.0
+
+                    tmp[0, :, x*28:  x*28 + 28,  y*28: y*28 + 28] = mean
+                    #tmp[0, :, x*16:  x*16 + 16,  y*16: y*16 + 16] = 1.0
                     pred_tmp = model(tmp, user_input_t, product_input_t)
                     change[1,x,y] = pred_tmp.cpu().numpy() - pred.cpu().numpy()
 
-        print(change2)
-        diff = np.abs(change2)
+
+        diff = np.abs(change)
         diff_w = diff[0,:,:]
         diff_b = diff[1,:,:]
         
