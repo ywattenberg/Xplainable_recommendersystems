@@ -19,8 +19,9 @@ def main():
         for line in file:
             asins.add(line.strip())
 
-    selected_users = set(test_df.loc[(test_df['asin'].isin(asins))&(test_df['reviewerID'].isin(test_users))].reviewerID.unique().loc[:1000])
-    print(len(selected_users))
+    selected_users = test_df.loc[(test_df['asin'].isin(asins))&(test_df['reviewerID'].isin(test_users))].reviewerID.unique()
+    selected_users = set(np.random.shuffle(selected_users)[:1200])
+
     i = 0
     for line in parse('/mnt/ds3lab-scratch/ywattenberg/data/Clothing_Shoes_and_Jewelry_5.json'):
         if line['asin'] in train_products and line['reviewerID'] in selected_users and test_user_idx[line['reviewerID']] < 5:
