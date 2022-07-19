@@ -23,7 +23,7 @@ def main():
     print(len(selected_users))
     i = 0
     for line in parse('/mnt/ds3lab-scratch/ywattenberg/data/Clothing_Shoes_and_Jewelry_5.json'):
-        if line['asin'] in train_products and line['reviewerID'] in selected_users and test_user_idx[line['reviewerID']] < 5:
+        if  line['reviewerID'] in selected_users and test_user_idx[line['reviewerID']] < 5:
             if 'reviewText' in line.keys():
                 i += 1
                 reviews.loc[i] = [line['reviewerID'], line['asin'], line['overall'], line['reviewText']]
