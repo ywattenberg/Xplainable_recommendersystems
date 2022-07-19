@@ -13,10 +13,17 @@ def main():
     test_user_idx = dict(zip(test_users, np.zeros(len(test_users), dtype=int)))
 
     reviews = pd.DataFrame(columns=['reviewerID', 'asin', 'overall', 'reviewText'])
+    
+    asins = set()
+    with open('/mnt/ds3lab-scratch/ywattenberg/data/asins.txt', 'r') as file:
+        for line in file:
+            asins.add(line.strip())
 
+    selected_users = test_df.loc[(test_df['asin'].isin(asins))&(test_df['reviewerID'].isin(test_users))]
+    print(len(selected_users))
     i = 0
     for line in parse('/mnt/ds3lab-scratch/ywattenberg/data/Clothing_Shoes_and_Jewelry_5.json'):
-        if line['asin'] in train_products and line['reviewerID'] in test_users and test_user_idx[line['reviewerID']] < 5:
+        if line['asin'] in train_products and line['reviewerID'] in selected_users and test_user_idx[line['reviewerID']] < 5:
             if 'reviewText' in line.keys():
                 i += 1
                 reviews.loc[i] = [line['reviewerID'], line['asin'], line['overall'], line['reviewText']]
