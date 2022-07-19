@@ -17,13 +17,21 @@ def main():
     i = 0
     for line in parse('/mnt/ds3lab-scratch/ywattenberg/data/Clothing_Shoes_and_Jewelry_5.json'):
         if line['asin'] in train_products and line['reviewerID'] in test_users and test_user_idx[line['reviewerID']] < 5:
+<<<<<<< HEAD
             if 'reviewText' in line.keys():
                 i += 1
                 reviews.loc[i] = [line['reviewerID'], line['asin'], line['overall'], line['reviewText']]
                 test_user_idx[line['reviewerID']] += 1
+=======
+            i += 1
+            reviews.loc[i] = [line['reviewerID'], line['asin'], line['overall'], line['reviewText']]
+            test_user_idx[line['reviewerID']] += 1
+            print(i)
+>>>>>>> ef28d5c647440b7e5bc408c17b79296fc53b098d
         if i > 1000:
             break
     reviews.to_csv('/mnt/ds3lab-scratch/ywattenberg/data/reviews_examples.csv', index=False)
 
             
-
+if __name__ == '__main__':
+    main()
