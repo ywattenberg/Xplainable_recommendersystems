@@ -20,9 +20,11 @@ def main():
             i += 1
             reviews.loc[i] = [line['reviewerID'], line['asin'], line['overall'], line['reviewText']]
             test_user_idx[line['reviewerID']] += 1
+            print(i)
         if i > 1000:
             break
     reviews.to_csv('/mnt/ds3lab-scratch/ywattenberg/data/reviews_examples.csv', index=False)
 
             
-
+if __name__ == '__main__':
+    main()
