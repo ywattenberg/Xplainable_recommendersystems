@@ -39,7 +39,7 @@ def main():
     image_transform = create_transform(**resolve_data_config({}, model=model))
 
     length = len(test_data)
-    for i in range(10):
+    for i in range(20):
         index = randint(0, length)
         user_input = test_data.iloc[index].userID
         product_input = test_data.iloc[index].productID
