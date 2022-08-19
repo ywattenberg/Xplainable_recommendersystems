@@ -9,10 +9,12 @@ from captum.attr import IntegratedGradients
 from PIL import Image
 import cv2
 from torchvision import transforms as T
-from explanation_generation.test_opencv import simple_filter
+import sys
+sys.path.append('../.')
+from test_opencv import simple_filter
 from timm.data import resolve_data_config
 from timm.data.transforms_factory import create_transform
-from dataset.amazon_dataset_utils import transform, imageHD_transform
+from Xplainable_recommendersystems.dataset.amazon_dataset_utils import transform, imageHD_transform
 
 def calculate_IG(model, image, baseline, user_in, product_in, image_transform=None, tmm_model=False, 
                 steps=200, device=None, transform_baseline=False):
@@ -76,13 +78,15 @@ def main():
     #num_items = df['asin'].nunique()
 
     #train_data = pd.read_csv('/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ_imgHD_subset_train.csv') 
+
+    model = torch.load('/mnt/ds3lab-scratch/ywattenberg/models/entire_model_2022-06-23_19.pth').to(device)
+    model = model.module
+    print(model)
+
     test_data = pd.read_csv('/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ_imgHD_subset_test.csv')
     image_transform = create_transform(**resolve_data_config({}, model=model))
     length = len(test_data)
     
-    model = torch.load('/mnt/ds3lab-scratch/ywattenberg/models/mixer_14_10f_small_data.pth').to(device)
-    model = model.module
-    print(model)
 
     for i in range(20):
         while True:
