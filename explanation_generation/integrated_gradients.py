@@ -130,19 +130,19 @@ def aggregate_attributions(attribution_mask_w, attribution_mask_b,  attribution_
     side_length = 28
     num_of_quads = int(attribution_mask_b.shape[0]/side_length)
     print(num_of_quads)
-    attribution_mask_b = attribution_mask_b.numpy()
+
     for x in range(num_of_quads):
         for y in range(num_of_quads):
             tmp = np.sum(attribution_mask_b[x*side_length:  x*side_length + side_length,  y*side_length: y*side_length + side_length])
             agg_b[x*side_length:  x*side_length + side_length,  y*side_length: y*side_length + side_length] = tmp
 
-    attribution_mask_w = attribution_mask_w.numpy()
+
     for x in range(num_of_quads):
         for y in range(num_of_quads):
             tmp = np.sum(attribution_mask_w[x*side_length:  x*side_length + side_length,  y*side_length: y*side_length + side_length])
             agg_w[x*side_length:  x*side_length + side_length,  y*side_length: y*side_length + side_length] = tmp
 
-    attribution_mask_rand = attribution_mask_rand.numpy()
+
     for x in range(num_of_quads):
         for y in range(num_of_quads):
             tmp = np.sum(attribution_mask_rand[x*side_length:  x*side_length + side_length,  y*side_length: y*side_length + side_length])
