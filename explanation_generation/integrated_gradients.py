@@ -19,7 +19,7 @@ from timm.data.transforms_factory import create_transform
 from dataset.amazon_dataset_utils import transform, imageHD_transform
 
 def calculate_IG(model, image, baseline, user_in, product_in, image_transform=None, tmm_model=False, 
-                steps:int=200, device=None, transform_baseline=False):
+                steps:int=200, device=None, transform_baseline=False, transform_in=True):
     if image_transform is None:
         if not tmm_model:
             image_transform = imageHD_transform
@@ -29,6 +29,14 @@ def calculate_IG(model, image, baseline, user_in, product_in, image_transform=No
     
     if device is None:
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+    if transform_in:
+        user_in = transform(user_in)
+        product_in = transform(product_in)
+        user_in = user_in.to(device)
+        user_in = user_in.unsqueeze(0)
+        product_in = product_in.to(device)
+        product_in = product_in.unsqueeze(0)
 
     if transform_baseline:
         baseline = image_transform(baseline)
