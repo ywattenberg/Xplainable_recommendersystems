@@ -55,18 +55,19 @@ def get_IG_attributions(model, image, user_in, product_in, image_transform=None,
     black_base_img = Image.fromarray(np.zeros([224,224,3], dtype=np.uint8))
 
     base_tensors = []
+    to_image = T.ToPILImage()
     for i in range(15):
-        base_tensors.append(torch.load(f'IG_base_tensor/base_tensor_{i}.pt').to(device))
+        base_tensors.append(to_image(torch.load(f'IG_base_tensor/base_tensor_{i}.pt').to(device)))
     
     attributions = []
     attributions.append(calculate_IG(model, image, white_base_img, user_in, product_in, image_transform=image_transform,    
-                                    tmm_model=tmm_model, device=device, transform_baseline=False))
+                                    tmm_model=tmm_model, device=device, transform_baseline=True))
     attributions.append(calculate_IG(model, image, black_base_img, user_in, product_in, image_transform=image_transform,    
-                                    tmm_model=tmm_model, device=device, transform_baseline=False))
+                                    tmm_model=tmm_model, device=device, transform_baseline=True))
 
     for base_tensor in base_tensors:
         attributions.append(calculate_IG(model, image, base_tensor, user_in, product_in, image_transform=image_transform,    
-                                    tmm_model=tmm_model, device=device, transform_baseline=False))
+                                    tmm_model=tmm_model, device=device, transform_baseline=True))
     return attributions
 
 
