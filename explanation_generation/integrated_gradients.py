@@ -48,9 +48,6 @@ def calculate_IG(model, image, baseline, user_in, product_in, image_transform=No
     image = image.to(device)
     image = image.requires_grad_(True)
 
-    user_in = transform(user_in).unsqueeze(dim=0).to(device)
-    product_in = transform(product_in).unsqueeze(dim=0).to(device)
-
     ig = IntegratedGradients(model)
     attributions = ig.attribute(image, baselines=baseline, additional_forward_args=(user_in,  
                                 product_in), n_steps=steps, method='gausslegendre', internal_batch_size=32)
