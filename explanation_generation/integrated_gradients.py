@@ -110,7 +110,7 @@ def main():
                 break
         attributions = get_IG_attributions(model, img_input, user_input, product_input, device=device, tmm_model=True)
         img_attr_avg = torch.mean(torch.stack(attributions[2:]), dim=0)
-        prediction = model(image_transform(img_input).unsqueeze(0), transform(user_input).unsqueeze(0), transform(product_input).unsqueeze(0))
+        prediction = model(image_transform(img_input).unsqueeze(0).to('cuda'), transform(user_input).unsqueeze(0).to('cuda'), transform(product_input).unsqueeze(0).to('cuda'))
         fig = plot_attributions(image_transform(img_input), attributions[0], attributions[1], 
                                 img_attr_avg, user_input, rating, prediction.item() , f'Plot {i}')
         fig.savefig(f'IG/{i}.png')
