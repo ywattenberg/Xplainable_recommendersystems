@@ -72,18 +72,18 @@ def main():
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
     df = pd.read_csv('/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ_imgHD.csv')
-    #train_data = ef[ef['rank_latest'] != 1]
-    #test_data = df[df['rank_latest'] == 1]
-    #num_users = df['reviewerID'].nunique()
-    #num_items = df['asin'].nunique()
+    train_data = ef[ef['rank_latest'] != 1]
+    test_data = df[df['rank_latest'] == 1]
+    num_users = df['reviewerID'].nunique()
+    num_items = df['asin'].nunique()
 
     #train_data = pd.read_csv('/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ_imgHD_subset_train.csv') 
 
-    model = torch.load('/mnt/ds3lab-scratch/ywattenberg/models/entire_model_2022-06-23_19.pth').to(device)
+    model = torch.load('~/Xplainable_reccomendersystems/tmp_entire_model_imp.pth').to(device)
     model = model.module
     print(model)
 
-    test_data = pd.read_csv('/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ_imgHD_subset_test.csv')
+    #test_data = pd.read_csv('/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ_imgHD_subset_test.csv')
     image_transform = create_transform(**resolve_data_config({}, model=model))
     length = len(test_data)
     
