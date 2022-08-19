@@ -60,13 +60,13 @@ def get_IG_attributions(model, image, user_in, product_in, image_transform=None,
     
     attributions = []
     attributions.append(calculate_IG(model, image, white_base_img, user_in, product_in, image_transform=image_transform,    
-                                    tmm_model=tmm_model, device=device, transform_baseline=True))
+                                    tmm_model=tmm_model, device=device, transform_baseline=False))
     attributions.append(calculate_IG(model, image, black_base_img, user_in, product_in, image_transform=image_transform,    
-                                    tmm_model=tmm_model, device=device, transform_baseline=True))
+                                    tmm_model=tmm_model, device=device, transform_baseline=False))
 
     for base_tensor in base_tensors:
         attributions.append(calculate_IG(model, image, base_tensor, user_in, product_in, image_transform=image_transform,    
-                                    tmm_model=tmm_model, device=device, transform_baseline=True))
+                                    tmm_model=tmm_model, device=device, transform_baseline=False))
     return attributions
 
 
