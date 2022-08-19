@@ -102,7 +102,7 @@ def main():
             rating = test_data.iloc[index].overall
             if rating > 3 and len(df[df['userID'] == user_input]) > 10 and not simple_filter(tmp_img):
                 break
-        attributions = get_IG_attributions(model, img_input, user_input, product_input, device=device)
+        attributions = get_IG_attributions(model, img_input, user_input, product_input, device=device, tmm_model=True)
         img_attr_avg = torch.mean(torch.stack(attributions[2:]), dim=0)
         prediction = model(image_transform(img_input), transform(user_input), transform(product_input))
         fig = plot_attributions(image_transform(img_input), attributions[0], attributions[1], 
@@ -110,24 +110,7 @@ def main():
         fig.savefig(f'IG/{i}.png')
         plt.close(fig)
         print('done with IG')
-        # prev_liked = df[df['userID'] == user_input]
-        # print(len(prev_liked))
-        # j = 0
-        # fig = plt.figure(figsize=(10,15))
-        # for i, line in prev_liked.iterrows():
-        #     if j >= 6:
-        #         break
-        #     if line.overall > 3 and line.asin != test_data.iloc[index].asin:
-        #         j += 1
-        #         print('in')
-        #         image = Image.open(os.path.join('/mnt/ds3lab-scratch/ywattenberg/data/imagesHD/', f'{line.asin}.jpg'))
-        #         fig.add_subplot(3, 2, j)
-        #         #plt.plot([1,2,3,4,10], [54,56,8,84,54])
-        #         plt.imshow(image)
-        #         plt.title(f'rating {line.overall}')
-        # plt.tight_layout()        
-        # fig.savefig(f'IG/{i}_e.png')
-        # plt.close(fig)
+
 
 def aggregate_attributions(attribution_mask_w, attribution_mask_b,  attribution_mask_rand):
     attribution_mask_b = attribution_mask_b.squeeze().cpu().detach().abs().sum(dim=0).numpy()
