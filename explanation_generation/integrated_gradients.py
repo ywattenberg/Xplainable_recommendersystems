@@ -10,11 +10,11 @@ from PIL import Image
 import cv2
 from torchvision import transforms as T
 import sys
-sys.path.append('../.')
+sys.path.append('../Xplainable_recommendersystems')
 from test_opencv import simple_filter
 from timm.data import resolve_data_config
 from timm.data.transforms_factory import create_transform
-from Xplainable_recommendersystems.dataset.amazon_dataset_utils import transform, imageHD_transform
+from dataset.amazon_dataset_utils import transform, imageHD_transform
 
 def calculate_IG(model, image, baseline, user_in, product_in, image_transform=None, tmm_model=False, 
                 steps=200, device=None, transform_baseline=False):
@@ -72,14 +72,14 @@ def main():
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
     df = pd.read_csv('/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ_imgHD.csv')
-    train_data = ef[ef['rank_latest'] != 1]
+    train_data = df[df['rank_latest'] != 1]
     test_data = df[df['rank_latest'] == 1]
     num_users = df['reviewerID'].nunique()
     num_items = df['asin'].nunique()
 
     #train_data = pd.read_csv('/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ_imgHD_subset_train.csv') 
 
-    model = torch.load('~/Xplainable_reccomendersystems/tmp_entire_model_imp.pth').to(device)
+    model = torch.load('/home/ywattenberg/Xplainable_recommendersystems/tmp_entire_model_imp.pth').to(device)
     model = model.module
     print(model)
 
