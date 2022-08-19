@@ -9,8 +9,10 @@ from captum.attr import IntegratedGradients
 from PIL import Image
 import cv2
 from torchvision import transforms as T
+
 import sys
 sys.path.append('../Xplainable_recommendersystems')
+
 from test_opencv import simple_filter
 from timm.data import resolve_data_config
 from timm.data.transforms_factory import create_transform
@@ -49,8 +51,8 @@ def calculate_IG(model, image, baseline, user_in, product_in, image_transform=No
 
 def get_IG_attributions(model, image, user_in, product_in, image_transform=None, tmm_model=False, 
                         device=None):
-    white_base_img = image_transform(Image.fromarray(np.ones([224,224,3], dtype=np.uint8)))
-    black_base_img = image_transform(Image.fromarray(np.zeros([224,224,3], dtype=np.uint8)))
+    white_base_img = Image.fromarray(np.ones([224,224,3], dtype=np.uint8))
+    black_base_img = Image.fromarray(np.zeros([224,224,3], dtype=np.uint8))
 
     base_tensors = []
     for i in range(15):
