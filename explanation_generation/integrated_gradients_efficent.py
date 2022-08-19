@@ -8,7 +8,7 @@ from random import randint
 from captum.attr import IntegratedGradients
 from PIL import Image
 from torchvision import transforms as T
-from test_opencv import simple_filter
+from scripts.test_opencv import simple_filter
 from timm.data import resolve_data_config
 from timm.data.transforms_factory import create_transform
 
