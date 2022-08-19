@@ -19,7 +19,7 @@ from timm.data.transforms_factory import create_transform
 from dataset.amazon_dataset_utils import transform, imageHD_transform
 
 def calculate_IG(model, image, baseline, user_in, product_in, image_transform=None, tmm_model=False, 
-                steps=200, device=None, transform_baseline=False):
+                steps:int=200, device=None, transform_baseline=False):
     if image_transform is None:
         if not tmm_model:
             image_transform = imageHD_transform
@@ -44,7 +44,7 @@ def calculate_IG(model, image, baseline, user_in, product_in, image_transform=No
     product_in = transform(product_in).unsqueeze(dim=0).to(device)
 
     ig = IntegratedGradients(model)
-    attributions = ig.attribute((image), baselines=baseline, additional_forward_args=(user_in,  
+    attributions = ig.attribute(image, baselines=baseline, additional_forward_args=(user_in,  
                                 product_in), n_steps=steps, method='gausslegendre', internal_batch_size=32)
     
     return attributions
@@ -59,14 +59,14 @@ def get_IG_attributions(model, image, user_in, product_in, image_transform=None,
         base_tensors.append(torch.load(f'IG_base_tensor/base_tensor_{i}.pt').to(device))
     
     attributions = []
-    attributions.append(calculate_IG(model, image, white_base_img, user_in, product_in, image_transform,    
-                                    tmm_model, device, transform_baseline=True))
-    attributions.append(calculate_IG(model, image, black_base_img, user_in, product_in, image_transform,
-                                    tmm_model, device, transform_baseline=True))
+    attributions.append(calculate_IG(model, image, white_base_img, user_in, product_in, image_transform=image_transform,    
+                                    tmm_model=tmm_model, device=device, transform_baseline=True))
+    attributions.append(calculate_IG(model, image, black_base_img, user_in, product_in, image_transform=image_transform,    
+                                    tmm_model=tmm_model, device=device, transform_baseline=True))
 
     for base_tensor in base_tensors:
-        attributions.append(calculate_IG(model, image, base_tensor, user_in, product_in, image_transform,
-                                        tmm_model, device, transform_baseline=False))
+        attributions.append(calculate_IG(model, image, base_tensor, user_in, product_in, image_transform=image_transform,    
+                                    tmm_model=tmm_model, device=device, transform_baseline=True))
     return attributions
 
 
