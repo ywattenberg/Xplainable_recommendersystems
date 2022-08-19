@@ -17,11 +17,12 @@ def get_trainer_imageHD(model_fn, timm_model=False, image_transform=None):
     df = pd.read_csv('/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ_imgHD_2.csv')
     train_data = df[df['rank_latest'] != 1]
     test_data = df[df['rank_latest'] == 1]
-    # train_data = pd.read_csv('/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ_imgHD_subset_train.csv')
-    # test_data = pd.read_csv('/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ_imgHD_subset_test.csv')
-    num_users = train_data['reviewerID'].nunique()
-    num_items = train_data['asin'].nunique()
-
+    #train_data = pd.read_csv('/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ_imgHD_subset_train.csv')
+    #test_data = pd.read_csv('/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ_imgHD_subset_test.csv')
+    num_users = train_data['userID'].nunique()
+    num_items = train_data['productID'].nunique()
+    print(num_users)
+    print(train_data['reviewerID'].nunique())
 
 
     model = torch.nn.DataParallel(model_fn(num_items=num_items, num_users=num_users))
