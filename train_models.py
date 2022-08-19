@@ -14,13 +14,13 @@ from timm.data import resolve_data_config
 from timm.data.transforms_factory import create_transform
 
 def get_trainer_imageHD(model_fn, timm_model=False, image_transform=None):
-    df = pd.read_csv('/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ_imgHD_2.csv')
+    df = pd.read_csv('/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ_imgHD.csv')
     train_data = df[df['rank_latest'] != 1]
     test_data = df[df['rank_latest'] == 1]
     #train_data = pd.read_csv('/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ_imgHD_subset_train.csv')
     #test_data = pd.read_csv('/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ_imgHD_subset_test.csv')
-    num_users = train_data['userID'].nunique()
-    num_items = train_data['productID'].nunique()
+    num_users = df['userID'].nunique()
+    num_items = df['productID'].nunique()
     print(num_users)
     print(train_data['reviewerID'].nunique())
 
@@ -35,7 +35,7 @@ def get_trainer_imageHD(model_fn, timm_model=False, image_transform=None):
     test_data = AmazonCSJDatasetWithIMGHD(path=None, df=test_data, prev_image_transform=image_transform)
 
     loss_fn = torch.nn.MSELoss()
-    optimizer = torch.optim.SGD(model.parameters(), lr=0.01)
+    optimizer = torch.optim.SGD(model.parameters(), lr=0.01, weight_decay=0.5)
     
     return Trainer(model, train_data, test_data, loss_fn, optimizer, batch_size=500, epochs=4)
 

@@ -35,10 +35,11 @@ class MatrixFactorizationWithImages_split(torch.nn.Module):
     def __init__(self, num_users, num_items, n_factors=100, feature_extractor=None):
         super().__init__()
 
+        print(num_users)
         self.image_feature_extractor = feature_extractor
 
-        self.user_factors = torch.nn.Embedding(num_users, n_factors, sparse=True)
-        self.item_factors = torch.nn.Embedding(num_items, 10, sparse=True)
+        self.user_factors = torch.nn.Embedding(num_users, n_factors)
+        self.item_factors = torch.nn.Embedding(num_items, 10)
         self.user_biases = torch.nn.Embedding(num_users, 1)
         self.item_biases = torch.nn.Embedding(num_items,1)
         torch.nn.init.xavier_uniform_(self.user_factors.weight)
