@@ -7,6 +7,7 @@ import torch
 from random import randint
 from captum.attr import IntegratedGradients
 from PIL import Image
+import cv2
 from torchvision import transforms as T
 from test_opencv import simple_filter
 from timm.data import resolve_data_config
@@ -68,13 +69,13 @@ def get_IG_attributions(model, image, user_in, product_in, image_transform=None,
 def main():
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
-    #df = pd.read_csv('/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ_imgHD.csv')
+    df = pd.read_csv('/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ_imgHD.csv')
     #train_data = ef[ef['rank_latest'] != 1]
     #test_data = df[df['rank_latest'] == 1]
     #num_users = df['reviewerID'].nunique()
     #num_items = df['asin'].nunique()
 
-    train_data = pd.read_csv('/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ_imgHD_subset_train.csv') 
+    #train_data = pd.read_csv('/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ_imgHD_subset_train.csv') 
     test_data = pd.read_csv('/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ_imgHD_subset_test.csv')
     image_transform = create_transform(**resolve_data_config({}, model=model))
     length = len(test_data)
