@@ -68,24 +68,20 @@ def get_IG_attributions(model, image, user_in, product_in, image_transform=None,
 def main():
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
-    df = pd.read_csv('/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ_imgHD.csv')
-
-    #num_users = df['reviewerID'].nunique()
-    #num_items = df['asin'].nunique()
-    #model = torch.load('/mnt/ds3lab-scratch/ywattenberg/models/mixer_14_10f_small_data.pth').to(device)
-    model = torch.load('/mnt/ds3lab-scratch/ywattenberg/models/mixer_14_10f_small_data.pth').to(device)
-    model = model.module
-    print(model)
-
+    #df = pd.read_csv('/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ_imgHD.csv')
     #train_data = ef[ef['rank_latest'] != 1]
     #test_data = df[df['rank_latest'] == 1]
+    #num_users = df['reviewerID'].nunique()
+    #num_items = df['asin'].nunique()
+
     train_data = pd.read_csv('/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ_imgHD_subset_train.csv') 
     test_data = pd.read_csv('/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ_imgHD_subset_test.csv')
     image_transform = create_transform(**resolve_data_config({}, model=model))
-
-    train_data = pd.read_csv('/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ_imgHD_subset_train.csv') 
-    test_data = pd.read_csv('/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ_imgHD_subset_test.csv')
     length = len(test_data)
+    
+    model = torch.load('/mnt/ds3lab-scratch/ywattenberg/models/mixer_14_10f_small_data.pth').to(device)
+    model = model.module
+    print(model)
 
     for i in range(20):
         while True:
