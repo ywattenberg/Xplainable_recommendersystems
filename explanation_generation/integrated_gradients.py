@@ -109,10 +109,9 @@ def main():
             if rating > 3 and len(df[df['userID'] == user_input]) > 10 and not simple_filter(tmp_img):
                 break
         attributions = get_IG_attributions(model, img_input, user_input, product_input, device=device, tmm_model=True)
-        img_attr_avg = torch.mean(torch.stack(attributions[2:]), dim=0)
+        
         prediction = model(image_transform(img_input).unsqueeze(0).to('cuda'), transform(user_input).unsqueeze(0).to('cuda'), transform(product_input).unsqueeze(0).to('cuda'))
-        fig = plot_attributions(image_transform(img_input), attributions[0], attributions[1], 
-                                img_attr_avg, user_input, rating, prediction.item() , f'Plot {i}')
+        fig = plot_attributions(image_transform(img_input), attributions, user_input, rating, prediction.item() , f'Plot {i}')
         fig.savefig(f'IG/{i}.png')
         plt.close(fig)
         print('done with IG')
@@ -151,9 +150,10 @@ def aggregate_attributions(attribution_mask_w, attribution_mask_b,  attribution_
     return agg_b, agg_w, agg_rand
 
 
-def plot_attributions(image, attribution_mask_w, attribution_mask_b,  attribution_mask_rand, user_input, rating, prediction,suptitle, alpha=0.3):
+def plot_attributions(image, attributions, user_input, rating, prediction,suptitle, alpha=0.3):
     image = image.squeeze().cpu().detach()
-    attribution_mask_w, attribution_mask_b,  attribution_mask_rand = aggregate_attributions(attribution_mask_w, attribution_mask_b,  attribution_mask_rand)
+
+    attribution_mask_w, attribution_mask_b,  attribution_mask_rand = aggregate_attributions(attributions[0], attributions[1],  torch.mean(torch.stack(attributions[2:]), dim=0))
     
     fig = plt.figure(figsize=(10,15))
 
