@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import torch
-import cv2
+from PIL import Image
 
 from explanation_generation.integrated_gradients import aggregate_attributions, get_IG_attributions
 
@@ -27,7 +27,7 @@ def main():
         userID = get_userID(reviewerID, df)
         productID = get_ProductID(asin, df)
 
-        image = cv2.imread('data/images/' + asin + '.jpg')
+        image = Image.open('data/images/' + asin + '.jpg')
         attributions = get_IG_attributions(model, image, productID, userID, tmm_model=True, device='cuda')
         agg_attributions = aggregate_attributions(attributions)
 
