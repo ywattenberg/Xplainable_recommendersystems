@@ -27,7 +27,7 @@ def main():
         userID = get_userID(reviewerID, df)
         productID = get_ProductID(asin, df)
 
-        image = Image.open('data/images/' + asin + '.jpg')
+        image = Image.open('/mnt/ds3lab-scratch/ywattenberg/data/images/' + asin + '.jpg')
         attributions = get_IG_attributions(model, image, productID, userID, tmm_model=True, device='cuda')
         agg_attributions = aggregate_attributions(attributions)
 
