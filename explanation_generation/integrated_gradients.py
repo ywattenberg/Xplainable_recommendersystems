@@ -13,7 +13,7 @@ from torchvision import transforms as T
 import sys
 sys.path.append('../Xplainable_recommendersystems')
 
-from test_opencv import simple_filter
+from explanation_generation.test_opencv import simple_filter
 from timm.data import resolve_data_config
 from timm.data.transforms_factory import create_transform
 from dataset.amazon_dataset_utils import transform, imageHD_transform

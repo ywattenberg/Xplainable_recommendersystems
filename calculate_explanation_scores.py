@@ -14,13 +14,15 @@ def main():
     model.eval()
 
     df = pd.read_csv('/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ_imgHD.csv')
-    annotations = pd.read_csv('annoatations/annotations_1-65_Piri.csv', index_col='Unnamed: 0')
+    annotations = pd.read_csv('annotations/annotations_1-65_Piri.csv', index_col='Unnamed: 0')
 
     total_attribution_inside = []
+    print(annotations)
 
-    for row in annotations.iterrows():
-        reviewerID = row['reviewerID'].reviewerID
-        asin = row['asin'].asin
+    for index, row in annotations.iterrows():
+        print(row.asin)
+        reviewerID = row.reviewerID
+        asin = row.asin
         
         userID = get_userID(reviewerID, df)
         productID = get_ProductID(asin, df)
@@ -32,12 +34,12 @@ def main():
         # Calculate total attributed
         bboxes = []
         tmp = np.array()
-        if row['bbox_0'] != '[0 0 0]':
-            bbox = bbox_to_arr(row['bbox_0'])
+        if row.bbox_0 != '[0 0 0]':
+            bbox = bbox_to_arr(row.bbox_0)
             tmp = calc_attributions(bbox, attributions)
             bboxes.append(bbox)
-        if row['bbox_1'] != '[0 0 0]':
-            bbox = bbox_to_arr(row['bbox_1'])
+        if row.bbox_1 != '[0 0 0]':
+            bbox = bbox_to_arr(row.bbox_1)
             tmp = np.add(tmp, calc_attributions(bbox, attributions))
             bboxes.append(bbox)
         total_attribution_inside.append(tmp)
@@ -52,8 +54,8 @@ def main():
                 tmp_w = agg_attributions[x*side_length,  y*side_length][0]
                 tmp_b = agg_attributions[x*side_length,  y*side_length][1]
                 tmp_r = agg_attributions[x*side_length,  y*side_length][2]
-                tmp_df = pd.DataFrame([x, y, ])
-                agg_attributions_df = pd.concat([agg_attributions_df, tmp_df, tmp_w, tmp_b, tmp_r], axis=1)
+                tmp_df = pd.DataFrame([x, y, tmp_w, ])
+                agg_attributions_df = pd.concat([agg_attributions_df, tmp_df], axis=1)
         
         print(agg_attributions_df)
         for bbox in bboxes:
@@ -106,7 +108,8 @@ def calc_attributions(bbox, attributions):
     return np.array((att_w, att_b, att_r))
         
 
-
+if __name__ == '__main__':
+    main()
         
 
 
