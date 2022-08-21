@@ -29,7 +29,7 @@ def main():
 
         image = Image.open('/mnt/ds3lab-scratch/ywattenberg/data/images/' + asin + '.jpg')
         attributions = get_IG_attributions(model, image, productID, userID, tmm_model=True, device='cuda')
-        agg_attributions = aggregate_attributions(attributions)
+        agg_attributions = aggregate_attributions(attributions[0], attributions[1],  torch.mean(torch.stack(attributions[2:]), dim=0))
 
         # Calculate total attributed
         bboxes = []
