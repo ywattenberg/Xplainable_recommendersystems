@@ -9,12 +9,12 @@ from explanation_generation.integrated_gradients import aggregate_attributions, 
 
 def main():
 
-    model = torch.load('/mnt/ds3lab-scratch/ywattenberg/models/mixer_14_10f_small_data.pth').to('cuda')
+    model = torch.load('/mnt/ds3lab-scratch/ywattenberg/models/entire_model_mixer_split.pth').to('cuda')
     model = model.module
     model.eval()
 
     df = pd.read_csv('/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ_imgHD.csv')
-    annotations = pd.read_csv('', index_col='Unnamed: 0')
+    annotations = pd.read_csv('annoatations/annotations_1-65_Piri.csv', index_col='Unnamed: 0')
 
     total_attribution_inside = []
 
