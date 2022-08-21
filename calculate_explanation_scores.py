@@ -46,14 +46,14 @@ def main():
         num_rects = 8
         side_length = 28
 
-        agg_attributions_df = pd.DataFrame(columns=['x','y','w', 'b', 'r'])
+        agg_attributions_df = pd.DataFrame(columns=['x','y','side_length','w', 'b', 'r'])
         for x in range(num_rects):
             for y in range(num_rects):
                 tmp_w = agg_attributions[x*side_length,  y*side_length][0]
                 tmp_b = agg_attributions[x*side_length,  y*side_length][1]
                 tmp_r = agg_attributions[x*side_length,  y*side_length][2]
-                tmp_df = pd.DataFrame([x, y, ])
-                agg_attributions_df = pd.concat([agg_attributions_df, tmp_df, tmp_w, tmp_b, tmp_r], axis=1)
+                tmp_df = pd.DataFrame([x, y, side_length, tmp_w, tmp_b, tmp_r], columns=['x','y','side_length','w', 'b', 'r'])
+                agg_attributions_df = pd.concat([agg_attributions_df, tmp_df], axis=1)
         
         print(agg_attributions_df)
         for bbox in bboxes:
