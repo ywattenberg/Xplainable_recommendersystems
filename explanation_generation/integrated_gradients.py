@@ -197,10 +197,9 @@ def plot_attributions(image, attributions, user_input, rating, prediction,suptit
     return fig
 
 def attributions_w_b_r(attributions):
-    attribution_mask_w, attribution_mask_b,  attribution_mask_rand = aggregate_attributions(attributions[0], attributions[1],  torch.mean(torch.stack(attributions[2:]), dim=0))
-    attribution_mask_b = attribution_mask_b.squeeze().cpu().detach().abs().sum(dim=0).numpy()
-    attribution_mask_w = attribution_mask_w.squeeze().cpu().detach().abs().sum(dim=0).numpy()
-    attribution_mask_rand = attribution_mask_rand.squeeze().cpu().detach().abs().sum(dim=0).numpy()
+    attribution_mask_b = attributions[0].squeeze().cpu().detach().abs().sum(dim=0).numpy()
+    attribution_mask_w = attributions[1].squeeze().cpu().detach().abs().sum(dim=0).numpy()
+    attribution_mask_rand = torch.mean(torch.stack(attributions[2:]), dim=0).squeeze().cpu().detach().abs().sum(dim=0).numpy()
     return attribution_mask_w, attribution_mask_b, attribution_mask_rand
 
 if __name__ == '__main__':
