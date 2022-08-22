@@ -82,7 +82,7 @@ def main():
             for y in range(7):
                 attr_w[x*32:  x*32 + 32,  y*32: y*32 + 32] = diff_w[x,y]/float(max_w)
                 attr_b[x*32:  x*32 + 32,  y*32: y*32 + 32] = diff_b[x,y]/float(max_b)
-
+        
         # for x in range(14):
         #     for y in range(14):
         #         attr_w[x*16:  x*16 + 16,  y*16: y*16 + 16] = diff_w[x,y]/float(max_w)
@@ -102,6 +102,46 @@ def main():
         fig.savefig(f'test_img/{i}.jpg')
         plt.close(fig)
     
+
+def gen_explanation(model, img_input, user_input, product_input, tmm_model=False):
+    
+    image_transform = create_transform(**resolve_data_config({}, model=model))
+    img_input = image_transform(img_input)
+    user_input = transform(user_input)
+    product_input = transform(product_input)
+
+    with torch.no_grad():
+        pred = model(img_input, user_input, product_input)
+        change = np.zeros([2,14,14], dtype=np.float32)
+        mean = img_input.mean()
+
+        for x in range(8):
+            for y in range(8):
+                tmp = img_input.clone()
+                tmp[0, :, x*28:  x*28 + 28,  y*28: y*28 + 28] = 0.0
+                #tmp[0, :, x*16:  x*16 + 16,  y*16: y*16 + 16] = 0.0
+                pred_tmp = model(tmp, user_input, product_input)
+                change[0,x,y] = pred_tmp.cpu().numpy() - pred.cpu().numpy()
+
+                tmp[0, :, x*28:  x*28 + 28,  y*28: y*28 + 28] = mean
+                #tmp[0, :, x*16:  x*16 + 16,  y*16: y*16 + 16] = 1.0
+                pred_tmp = model(tmp, user_input, product_input)
+                change[1,x,y] = pred_tmp.cpu().numpy() - pred.cpu().numpy()
+
+    diff = np.abs(change)
+    diff_w = diff[0,:,:]
+    diff_b = diff[1,:,:]
+    
+    max_w = np.max(diff_w)
+    max_b = np.max(diff_b)
+    attr_w = np.zeros([224,224], dtype=np.float32)
+    attr_b = np.zeros([224,224], dtype=np.float32)
+    for x in range(7):
+        for y in range(7):
+            attr_w[x*32:  x*32 + 32,  y*32: y*32 + 32] = diff_w[x,y]/float(max_w)
+            attr_b[x*32:  x*32 + 32,  y*32: y*32 + 32] = diff_b[x,y]/float(max_b)
+    
+    return attr_w, attr_b
 
 if __name__ == '__main__':
     main()

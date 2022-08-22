@@ -6,6 +6,7 @@ import torch
 from PIL import Image
 
 from explanation_generation.integrated_gradients import aggregate_attributions, get_IG_attributions, attributions_w_b_r
+from explanation_generation.augmented_images import gen_explanation
 
 def main():
 
@@ -14,7 +15,7 @@ def main():
     model.eval()
 
     df = pd.read_csv('/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ_imgHD.csv')
-    annotations = pd.read_csv('annotations/annotations_66-130_Susie.csv', index_col='Unnamed: 0')
+    annotations = pd.read_csv('annotations/annotations_1-65_Piri.csv', index_col='Unnamed: 0')
     total_attribution_inside = []
     total_score_w_b_r = [0.0,0.0,0.0]
 
@@ -83,7 +84,40 @@ def main():
             tmp_score += len(score_df[score_df==True])
             rects_in.update(score_df[score_df==True].index.values)
         total_score_w_b_r[2] += tmp_score
+
+        attributions = gen_explanation(model, image, productID, userID, tmm_model=True)
+        agg_attributions_df = pd.DataFrame(columns=['x','y','side_length','w', 'm'])
+        for x in range(num_rects):
+            for y in range(num_rects):
+                tmp_w = agg_attributions[0][x*side_length,  y*side_length]
+                tmp_b = agg_attributions[1][x*side_length,  y*side_length]
+                #tmp_df = pd.DataFrame([x, y, side_length, tmp_w, tmp_b, tmp_r], columns=['x','y','side_length','w', 'b', 'r'])
+                #agg_attributions_df = pd.concat([agg_attributions_df, tmp_df], axis=1)
+                agg_attributions_df.loc[len(agg_attributions_df)] = [x*side_length, y*side_length, side_length, tmp_w, tmp_b]
+                rects_in = set()
+        tmp_score = 0.0
+
+        total_score_counter = [0,0]
+        for bbox in bboxes:
+            score_df = get_top_n_score(agg_attributions_df, 10, 'w', bbox[0], bbox[1], bbox[2], bbox[3])
+            score_df = score_df[~score_df.index.isin(rects_in)]
+            tmp_score += len(score_df[score_df==True])
+            rects_in.update(score_df[score_df==True].index.values)
+        total_score_counter[0] += tmp_score
+
+        rects_in = set()
+        tmp_score = 0.0
+        for bbox in bboxes:
+            score_df = get_top_n_score(agg_attributions_df, 10, 'm', bbox[0], bbox[1], bbox[2], bbox[3]) # Number of rectangles that overlap with the bounding box
+            score_df = score_df[~score_df.index.isin(rects_in)]
+            tmp_score += len(score_df[score_df==True])
+            rects_in.update(score_df[score_df==True].index.values)
+        total_score_counter[1] += tmp_score
+        
+
     print(f' white: {total_score_w_b_r[0]/float(len(annotations))}, black: {total_score_w_b_r[1]/float(len(annotations))}, random: {total_score_w_b_r[2]/float(len(annotations))}')
+    print(f' counter white: {total_score_counter[0]/float(len(annotations))}, counter black: {total_score_counter[1]/float(len(annotations))}')
+
     
 
 
