@@ -56,12 +56,12 @@ def main():
                 tmp_r = agg_attributions[2][x*side_length,  y*side_length]
                 #tmp_df = pd.DataFrame([x, y, side_length, tmp_w, tmp_b, tmp_r], columns=['x','y','side_length','w', 'b', 'r'])
                 #agg_attributions_df = pd.concat([agg_attributions_df, tmp_df], axis=1)
-                agg_attributions_df.loc[len(agg_attributions_df)] = [x, y, side_length, tmp_w, tmp_b, tmp_r]
-        
+                agg_attributions_df.loc[len(agg_attributions_df)] = [x*side_length, y*side_length, side_length, tmp_w, tmp_b, tmp_r]
         print(total_attribution_inside)
+        print(bboxes)
         for bbox in bboxes:
             score_df = get_top_n_score(agg_attributions_df, 5, 'w', bbox[0], bbox[1], bbox[2], bbox[3])
-            print(score_df[score_df==True])
+            print(score_df)
 
 
 def get_userID(reviewerID, df):
@@ -76,17 +76,8 @@ def get_top_n_score(agg_attributions_df, n, col, x, y, w, h):
     return tmp_df.apply(lambda row: overlap(row.x, row.y, row.side_length, row.side_length, x, y, w, h), axis=1)
 
 def overlap(x1, y1, w1, h1, x2, y2, w2, h2):
-    if x1 == x1+w1 or y1 == y1+h1 or x2 == x2+w2 or y2 == y2+h2:
+    if x1+w1 < x2 or x2+w2 < x1 or y1+h1 < y2 or y2+h2 < y1:
         return False
-     
-    # If one rectangle is on left side of other
-    if x1 > x2+w2 or x2 > x1+w1:
-        return False
- 
-    # If one rectangle is above other
-    if y1+h1 > y2 or y2+h2 > y1:
-        return False
- 
     return True
 
 def bbox_to_arr(bbox):
