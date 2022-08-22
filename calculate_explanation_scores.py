@@ -60,9 +60,8 @@ def main():
         
         print(total_attribution_inside)
         for bbox in bboxes:
-            df = get_top_n_score(agg_attributions_df, 5, 'w', bbox[0], bbox[1], bbox[2], bbox[3])
-            print(df.head())
-            print(df[df==True])
+            score_df = get_top_n_score(agg_attributions_df, 5, 'w', bbox[0], bbox[1], bbox[2], bbox[3])
+            print(score_df[score_df==True])
 
 
 def get_userID(reviewerID, df):
@@ -90,13 +89,10 @@ def overlap(x1, y1, w1, h1, x2, y2, w2, h2):
  
     return True
 
-
-
 def bbox_to_arr(bbox):
     x, y, w, h = [str for str in bbox[1:-1].split(' ') if str]
     return [int(x), int(y), int(w), int(h)]
 
-        
 def calc_attributions(bbox, attributions):
     x, y, w, h = bbox
     attributions = attributions_w_b_r(attributions)
