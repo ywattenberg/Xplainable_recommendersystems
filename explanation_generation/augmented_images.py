@@ -107,8 +107,8 @@ def gen_explanation(model, img_input, user_input, product_input, tmm_model=False
     
     image_transform = create_transform(**resolve_data_config({}, model=model))
     img_input = image_transform(img_input).unsqueeze(dim=0).to('cuda')
-    user_input_t = transform(user_input).unsqueeze(dim=0)
-    product_input_t = transform(product_input).unsqueeze(dim=0)
+    user_input = transform(user_input).unsqueeze(dim=0)
+    product_input = transform(product_input).unsqueeze(dim=0)
 
     with torch.no_grad():
         pred = model(img_input, user_input, product_input)
