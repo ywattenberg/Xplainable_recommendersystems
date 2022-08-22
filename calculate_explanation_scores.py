@@ -58,25 +58,29 @@ def main():
                 #agg_attributions_df = pd.concat([agg_attributions_df, tmp_df], axis=1)
                 agg_attributions_df.loc[len(agg_attributions_df)] = [x*side_length, y*side_length, side_length, tmp_w, tmp_b, tmp_r]
         
+        rects_in = set()
         tmp_score = 0.0
         for bbox in bboxes:
             score_df = get_top_n_score(agg_attributions_df, 10, 'w', bbox[0], bbox[1], bbox[2], bbox[3])
-            print(len(score_df[score_df==True])) # Number of rectangles that overlap with the bounding box
+            score_df = score_df[~score_df.index.isin(rects_in)]
             tmp_score += len(score_df[score_df==True])
+            rects_in.update(score_df[score_df==True].index.values)
         total_score_w_b_r[0] += tmp_score/10.0
 
         tmp_score = 0.0
         for bbox in bboxes:
-            score_df = get_top_n_score(agg_attributions_df, 10, 'b', bbox[0], bbox[1], bbox[2], bbox[3])
-            print(len(score_df[score_df==True])) # Number of rectangles that overlap with the bounding box
+            score_df = get_top_n_score(agg_attributions_df, 10, 'b', bbox[0], bbox[1], bbox[2], bbox[3]) # Number of rectangles that overlap with the bounding box
+            score_df = score_df[~score_df.index.isin(rects_in)]
             tmp_score += len(score_df[score_df==True])
+            rects_in.update(score_df[score_df==True].index.values)
         total_score_w_b_r[1] += tmp_score/10.0
 
         tmp_score = 0.0
         for bbox in bboxes:
             score_df = get_top_n_score(agg_attributions_df, 10, 'r', bbox[0], bbox[1], bbox[2], bbox[3])
-            print(len(score_df[score_df==True])) # Number of rectangles that overlap with the bounding box
+            score_df = score_df[~score_df.index.isin(rects_in)]
             tmp_score += len(score_df[score_df==True])
+            rects_in.update(score_df[score_df==True].index.values)
         total_score_w_b_r[2] += tmp_score/10.0
     print(total_score_w_b_r)
     
