@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import torch
 from PIL import Image
 
-from explanation_generation.integrated_gradients import aggregate_attributions, get_IG_attributions
+from explanation_generation.integrated_gradients import aggregate_attributions, get_IG_attributions, attributions_w_b_r
 
 def main():
 
@@ -33,7 +33,7 @@ def main():
 
         # Calculate total attributed
         bboxes = []
-        tmp = np.array()
+        tmp = np.array([])
         if row.bbox_0 != '[0 0 0]':
             bbox = bbox_to_arr(row.bbox_0)
             tmp = calc_attributions(bbox, attributions)
@@ -51,15 +51,18 @@ def main():
         agg_attributions_df = pd.DataFrame(columns=['x','y','side_length','w', 'b', 'r'])
         for x in range(num_rects):
             for y in range(num_rects):
-                tmp_w = agg_attributions[x*side_length,  y*side_length][0]
-                tmp_b = agg_attributions[x*side_length,  y*side_length][1]
-                tmp_r = agg_attributions[x*side_length,  y*side_length][2]
-                tmp_df = pd.DataFrame([x, y, side_length, tmp_w, tmp_b, tmp_r], columns=['x','y','side_length','w', 'b', 'r'])
-                agg_attributions_df = pd.concat([agg_attributions_df, tmp_df], axis=1)
+                tmp_w = agg_attributions[0][x*side_length,  y*side_length]
+                tmp_b = agg_attributions[1][x*side_length,  y*side_length]
+                tmp_r = agg_attributions[2][x*side_length,  y*side_length]
+                #tmp_df = pd.DataFrame([x, y, side_length, tmp_w, tmp_b, tmp_r], columns=['x','y','side_length','w', 'b', 'r'])
+                #agg_attributions_df = pd.concat([agg_attributions_df, tmp_df], axis=1)
+                agg_attributions_df.loc[len(agg_attributions_df)] = [x, y, side_length, tmp_w, tmp_b, tmp_r]
         
-        print(agg_attributions_df)
+        print(total_attribution_inside)
         for bbox in bboxes:
-            print(get_top_n_score(agg_attributions_df, 5, 'w', bbox[0], bbox[1], bbox[2], bbox[3]))
+            df = get_top_n_score(agg_attributions_df, 5, 'w', bbox[0], bbox[1], bbox[2], bbox[3])
+            print(df.head())
+            print(df[df==True])
 
 
 def get_userID(reviewerID, df):
@@ -70,8 +73,8 @@ def get_ProductID(asin, df):
 
 def get_top_n_score(agg_attributions_df, n, col, x, y, w, h):
     agg_attributions_df.sort_values(by=[col], ascending=False, inplace=True)
-    tmp_df = agg_attributions_df.iloc[:n]
-    return tmp_df.apply(lambda row: overlap(row.x, row.y, row.w, row.h, x, y, w, h), axis=1)
+    tmp_df = agg_attributions_df
+    return tmp_df.apply(lambda row: overlap(row.x, row.y, row.side_length, row.side_length, x, y, w, h), axis=1)
 
 def overlap(x1, y1, w1, h1, x2, y2, w2, h2):
     if x1 == x1+w1 or y1 == y1+h1 or x2 == x2+w2 or y2 == y2+h2:
@@ -90,21 +93,21 @@ def overlap(x1, y1, w1, h1, x2, y2, w2, h2):
 
 
 def bbox_to_arr(bbox):
-    x, y, w, h = bbox[1:-1].split(' ')
+    x, y, w, h = [str for str in bbox[1:-1].split(' ') if str]
     return [int(x), int(y), int(w), int(h)]
 
         
 def calc_attributions(bbox, attributions):
     x, y, w, h = bbox
+    attributions = attributions_w_b_r(attributions)
     att_w = 0
     att_b = 0
     att_r = 0
-
     for i in range(w):
         for j in range(h):
-            att_w += attributions[x+i, y+j][0]
-            att_b += attributions[x+i, y+j][1]
-            att_r += attributions[x+i, y+j][2]
+            att_w += attributions[0][ x+i, y+j]
+            att_b += attributions[1][ x+i, y+j]
+            att_r += attributions[2][ x+i, y+j]
     return np.array((att_w, att_b, att_r))
         
 
