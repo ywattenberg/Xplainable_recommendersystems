@@ -14,8 +14,7 @@ def main():
     model.eval()
 
     df = pd.read_csv('/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ_imgHD.csv')
-    annotations = pd.read_csv('annotations/annotations_1-65_Piri.csv', index_col='Unnamed: 0')
-
+    annotations = pd.read_csv('annotations/annotations_66-130_Susie.csv', index_col='Unnamed: 0')
     total_attribution_inside = []
     total_score_w_b_r = [0.0,0.0,0.0]
 
@@ -84,7 +83,7 @@ def main():
             tmp_score += len(score_df[score_df==True])
             rects_in.update(score_df[score_df==True].index.values)
         total_score_w_b_r[2] += tmp_score
-    print(total_score_w_b_r/len(annotations))
+    print(f' white: {total_score_w_b_r[0]/float(len(annotations))}, black: {total_score_w_b_r[1]/float(len(annotations))}, random: {total_score_w_b_r[2]/float(len(annotations))}')
     
 
 
