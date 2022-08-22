@@ -17,7 +17,7 @@ def main():
     annotations = pd.read_csv('annotations/annotations_1-65_Piri.csv', index_col='Unnamed: 0')
 
     total_attribution_inside = []
-    print(annotations)
+    total_score_w_b_r = [0.0,0.0,0.0]
 
     for index, row in annotations.iterrows():
         print(row.asin)
@@ -57,11 +57,31 @@ def main():
                 #tmp_df = pd.DataFrame([x, y, side_length, tmp_w, tmp_b, tmp_r], columns=['x','y','side_length','w', 'b', 'r'])
                 #agg_attributions_df = pd.concat([agg_attributions_df, tmp_df], axis=1)
                 agg_attributions_df.loc[len(agg_attributions_df)] = [x*side_length, y*side_length, side_length, tmp_w, tmp_b, tmp_r]
-        print(total_attribution_inside)
-        print(bboxes)
+        
+        tmp_score = 0.0
         for bbox in bboxes:
-            score_df = get_top_n_score(agg_attributions_df, 5, 'w', bbox[0], bbox[1], bbox[2], bbox[3])
-            print(score_df)
+            score_df = get_top_n_score(agg_attributions_df, 10, 'w', bbox[0], bbox[1], bbox[2], bbox[3])
+            print(len(score_df[score_df==True])) # Number of rectangles that overlap with the bounding box
+            tmp_score += len(score_df[score_df==True])
+        total_score_w_b_r[0] += tmp_score/10.0
+
+        tmp_score = 0.0
+        for bbox in bboxes:
+            score_df = get_top_n_score(agg_attributions_df, 10, 'b', bbox[0], bbox[1], bbox[2], bbox[3])
+            print(len(score_df[score_df==True])) # Number of rectangles that overlap with the bounding box
+            tmp_score += len(score_df[score_df==True])
+        total_score_w_b_r[1] += tmp_score/10.0
+
+        tmp_score = 0.0
+        for bbox in bboxes:
+            score_df = get_top_n_score(agg_attributions_df, 10, 'r', bbox[0], bbox[1], bbox[2], bbox[3])
+            print(len(score_df[score_df==True])) # Number of rectangles that overlap with the bounding box
+            tmp_score += len(score_df[score_df==True])
+        total_score_w_b_r[2] += tmp_score/10.0
+    print(total_score_w_b_r)
+    
+
+
 
 
 def get_userID(reviewerID, df):
@@ -72,7 +92,7 @@ def get_ProductID(asin, df):
 
 def get_top_n_score(agg_attributions_df, n, col, x, y, w, h):
     agg_attributions_df.sort_values(by=[col], ascending=False, inplace=True)
-    tmp_df = agg_attributions_df
+    tmp_df = agg_attributions_df.iloc[:n]
     return tmp_df.apply(lambda row: overlap(row.x, row.y, row.side_length, row.side_length, x, y, w, h), axis=1)
 
 def overlap(x1, y1, w1, h1, x2, y2, w2, h2):
