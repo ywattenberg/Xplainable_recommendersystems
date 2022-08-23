@@ -118,7 +118,7 @@ def gen_explanation(model, img_input, user_input, product_input, tmm_model=False
         for x in range(8):
             for y in range(8):
                 tmp = img_input.clone()
-                tmp[0, :, x*28:  x*28 + 28,  y*28: y*28 + 28] = 0.0
+                tmp[0, :, x*28:  x*28 + 28,  y*28: y*28 + 28] = 1.0
                 #tmp[0, :, x*16:  x*16 + 16,  y*16: y*16 + 16] = 0.0
                 pred_tmp = model(tmp, user_input, product_input)
                 change[0,x,y] = pred_tmp.cpu().numpy() - pred.cpu().numpy()
