@@ -9,7 +9,7 @@ from dataset.amazon_dataset_utils import parse
 
 
 def main():
-    path = '/mnt/ds3lab-scratch/ywattenberg/data/meta_AMAZON_FASHION.json'
+    path = '../data/meta_AMAZON_FASHION.json'
 
     pool = ThreadPoolExecutor(16)
     futures = []
@@ -42,13 +42,14 @@ def download(json_list):
                 r = requests.get(urls[0], stream=True)
                 if r.status_code == 200:
                     r.raw.decode_content = True
-                    with open(f'/mnt/ds3lab-scratch/ywattenberg/data/fashio_imagesHD/{asin}.{ending}', 'wb') as f:
+                    with open(f'../data/fashion_imagesHD/{asin}.{ending}', 'wb') as f:
                         shutil.copyfileobj(r.raw, f)
                     logger.info(f'GOT {asin}')
                 else:
-                    logger.info(f'FAILED {asin}; {urls}')
-            except:
-                logger.info(f'FAILED {asin}; {urls}')
+                    logger.info(f'FAILED {asin}: {r.status_code} ; {urls}')
+            except Exception as e:
+                
+                logger.info(f'FAILED {asin}: {e} ; {urls}')
         else:
             logger.info(f'NO {asin}')
 
