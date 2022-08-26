@@ -3,6 +3,12 @@ import pandas as pd
 import numpy as np
 from PIL import Image
 
+import sys
+sys.path.append('../.')
+from dataset.amazon_dataset_utils import prepare_dataset 
+
+
+
 def filter_img(path):
     have_img = list()
     not_jpg = list()
@@ -28,18 +34,20 @@ def filter_img(path):
             file.write('\n')
     return have_img
 
-def create_csv(path, have_img):
-    df = pd.read_csv('/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ.csv')
+def create_csv(df, path, have_img):
     if have_img == None:
         have_img = set()
         with open('have_img.txt', 'r') as file:
             for line in file:
                 have_img.add(line.replace('\n', ''))
     df = df[df['asin'].isin(have_img)]
-    df.to_csv('/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ_imgHD.csv')
+    df.to_csv(path)
+
 def main():
-    #filter_img('/mnt/ds3lab-scratch/ywattenberg/data/imagesHD')
-    create_csv('', None)
+    df = prepare_dataset('/mnt/ds3lab-scratch/ywattenberg/data/AMAZON_FASHION.json') 
+    have = filter_img('/mnt/ds3lab-scratch/ywattenberg/data/fashion_imagesHD')
+    #df = pd.read_csv('/mnt/ds3lab-scratch/ywattenberg/data/compact_fashion.csv')
+    create_csv(df, '/mnt/ds3lab-scratch/ywattenberg/data/compact_fashion_ImgHD.csv', have)
     # bw_images = set()
     # with open('BW_img.txt', 'r') as file:
     #     for l in file:

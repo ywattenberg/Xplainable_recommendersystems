@@ -26,6 +26,7 @@ def get_trainer_imageHD(model_fn, timm_model=False, image_transform=None):
 
 
     model = torch.nn.DataParallel(model_fn(num_items=num_items, num_users=num_users))
+    #model = torch.load('tmp_entire_model_imp.pth')
 
     if timm_model:
         config = resolve_data_config({}, model=model)
@@ -35,9 +36,9 @@ def get_trainer_imageHD(model_fn, timm_model=False, image_transform=None):
     test_data = AmazonCSJDatasetWithIMGHD(path=None, df=test_data, prev_image_transform=image_transform)
 
     loss_fn = torch.nn.MSELoss()
-    optimizer = torch.optim.SGD(model.parameters(), lr=0.01, weight_decay=0.5)
+    optimizer = torch.optim.SGD(model.parameters(), lr=0.01)
     
-    return Trainer(model, train_data, test_data, loss_fn, optimizer, batch_size=500, epochs=4)
+    return Trainer(model, train_data, test_data, loss_fn, optimizer, batch_size=250, epochs=4)
 
 
 def get_trainer_vgg16_HD():
@@ -60,7 +61,7 @@ def get_trainer_mixer_HD_only():
 
 if __name__ == '__main__':
     #trainer = get_trainer_vgg16_HD()
-    #trainer = get_trainer_efficent_HD()
-    trainer = get_trainer_mixer_HD_split()
+    trainer = get_trainer_efficent_HD_split()
+    #trainer = get_trainer_mixer_HD_split()
     trainer.train_test()
     
