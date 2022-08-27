@@ -30,10 +30,10 @@ def encode_df(df):
 
 def prepare_dataset(path):
     df = getDF(path)
-    df = df[['overall', 'reviewerID', 'asin', 'unixReviewTime']]
+    df = df[['overall', 'reviewerID', 'asin', 'unixReviewTime', 'reviewText']]
     df = encode_df(df)
     df['rank_latest'] = df.groupby(['reviewerID'])['unixReviewTime'].rank(method='first', ascending=False)
-    df.to_csv('data/compact_CSJ.csv', index=False)
+    df.to_csv('/mnt/ds3lab-scratch/ywattenberg/data/compact_fashion.csv', index=False)
     return df
 
 def label_transform(z):
