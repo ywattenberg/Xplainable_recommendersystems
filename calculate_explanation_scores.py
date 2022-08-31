@@ -9,8 +9,9 @@ from explanation_generation.integrated_gradients import aggregate_attributions, 
 from explanation_generation.augmented_images import gen_explanation
 
 def main():
-
-    model = torch.load('/mnt/ds3lab-scratch/ywattenberg/models/entire_model_mixer_split.pth').to('cuda')
+    
+    model = torch.load('entire_model_2022-08-28_17.pth').to('cuda')
+    #model = torch.load('/mnt/ds3lab-scratch/ywattenberg/models/entire_model_mixer_split.pth').to('cuda')
     model = model.module
     model.eval()
 

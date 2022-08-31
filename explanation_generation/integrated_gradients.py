@@ -22,7 +22,7 @@ def calculate_IG(model, image, baseline, user_in, product_in, image_transform=No
         if not tmm_model:
             image_transform = imageHD_transform
         elif tmm_model:
-            image_transform = T.Compose([T.Resize(size=256, interpolation='bicubic', max_size=None, antialias=None), T.CenterCrop(size=(224, 224)), T.ToTensor(), T.Normalize(mean=torch.tensor([0.4850, 0.4560, 0.4060]), std=torch.tensor([0.2290, 0.2240, 0.2250]))])
+            image_transform = T.Compose([T.Resize(size=256, interpolation=T.InterpolationMode.BICUBIC, max_size=None, antialias=None), T.CenterCrop(size=(224, 224)), T.ToTensor(), T.Normalize(mean=torch.tensor([0.4850, 0.4560, 0.4060]), std=torch.tensor([0.2290, 0.2240, 0.2250]))])
     
     if device is None:
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -89,7 +89,7 @@ def main():
     print(model)
 
     #test_data = pd.read_csv('/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ_imgHD_subset_test.csv')
-    image_transform = T.Compose([T.Resize(size=256, interpolation='bicubic', max_size=None, antialias=None), T.CenterCrop(size=(224, 224)), T.ToTensor(), T.Normalize(mean=torch.tensor([0.4850, 0.4560, 0.4060]), std=torch.tensor([0.2290, 0.2240, 0.2250]))])
+    image_transform = T.Compose([T.Resize(size=256, interpolation=T.InterpolationMode.BICUBIC, max_size=None, antialias=None), T.CenterCrop(size=(224, 224)), T.ToTensor(), T.Normalize(mean=torch.tensor([0.4850, 0.4560, 0.4060]), std=torch.tensor([0.2290, 0.2240, 0.2250]))])
     length = len(test_data)
     
 
