@@ -4,9 +4,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import torch
 from random import randint
-
-from timm.data import resolve_data_config
-from timm.data.transforms_factory import create_transform
+import torchvision.Transforms as T
 
 from dataset.amazon_dataset_utils import transform, imageHD_transform
 from PIL import Image
@@ -36,7 +34,7 @@ def main():
     test_data = pd.read_csv('/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ_imgHD_subset_test.csv')
     
     # image_transform = imageHD_transform 
-    image_transform = create_transform(**resolve_data_config({}, model=model))
+    image_transform = T.Compose([T.Resize(size=256, interpolation='bicubic', max_size=None, antialias=None), T.CenterCrop(size=(224, 224)), T.ToTensor(), T.Normalize(mean=torch.tensor([0.4850, 0.4560, 0.4060]), std=torch.tensor([0.2290, 0.2240, 0.2250]))])
 
     length = len(test_data)
     for i in range(20):
