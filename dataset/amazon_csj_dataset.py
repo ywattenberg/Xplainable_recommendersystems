@@ -58,7 +58,7 @@ class AmazonCSJDatasetWithIMG(Dataset):
         return self.transform(userID), self.transform(productID), self.image_transform(image), self.label_transform(label)
 
 class AmazonCSJDatasetWithIMGHD(Dataset):
-    def __init__(self, path, prev_transform=transform, prev_label_transform=label_transform, prev_image_transform=imageHD_transform, df=None):
+    def __init__(self, path, prev_transform=transform, prev_label_transform=label_transform, prev_image_transform=imageHD_transform, df=None, img_path=None):
         if(path != None):
             df = getDF(path)
             df = df[['overall', 'reviewerID', 'asin', 'unixReviewTime']]
@@ -76,6 +76,10 @@ class AmazonCSJDatasetWithIMGHD(Dataset):
             self.transform = transform
         if prev_label_transform is None:
             self.label_transform = label_transform
+        if img_path is None:
+            self.img_path = '/mnt/ds3lab-scratch/ywattenberg/data/imagesHD/'
+        else: 
+            self.img_path = img_path
 
     def __len__(self):
         return len(self.df)
@@ -86,7 +90,7 @@ class AmazonCSJDatasetWithIMGHD(Dataset):
         label = self.df.overall.iloc[index]
 
         asin = self.df.asin.iloc[index]
-        image = Image.open(os.path.join('/mnt/ds3lab-scratch/ywattenberg/data/imagesHD/', f'{asin}.jpg'))
+        image = Image.open(os.path.join(self.img_path, f'{asin}.jpg'))
         #image = np.transpose(image, (2,0,1))
 
 

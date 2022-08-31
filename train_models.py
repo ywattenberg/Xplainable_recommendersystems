@@ -10,7 +10,7 @@ from models.MatrixFactorizationWithImages import get_MF_with_images_Mixer12_spli
 from dataset.amazon_dataset_utils import *
 from trainer import Trainer
 
-def get_trainer_imageHD(model_fn, timm_model=False, image_transform=None, path_to_csv='/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ_imgHD_subset_train.csv', epochs=4, batch_size=512, lr=0.01, weight_decay=0.0, optimizer_fn=torch.optim.SGD, loss_fn=torch.nn.MSELoss):
+def get_trainer_imageHD(model_fn, timm_model=False, image_transform=None, path_to_csv='/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ_imgHD_subset_train.csv', img_path=None , epochs=4, batch_size=512, lr=0.01, weight_decay=0.0, optimizer_fn=torch.optim.SGD, loss_fn=torch.nn.MSELoss):
     df = pd.read_csv(path_to_csv)
     train_data = df[df['rank_latest'] != 1]
     test_data = df[df['rank_latest'] == 1]
@@ -28,8 +28,8 @@ def get_trainer_imageHD(model_fn, timm_model=False, image_transform=None, path_t
     if timm_model:
         image_transform = T.Compose([T.Resize(size=256, interpolation=T.InterpolationMode.BICUBIC, max_size=None, antialias=None), T.CenterCrop(size=(224, 224)), T.ToTensor(), T.Normalize(mean=torch.tensor([0.4850, 0.4560, 0.4060]), std=torch.tensor([0.2290, 0.2240, 0.2250]))])
 
-    train_data = AmazonCSJDatasetWithIMGHD(path=None, df=train_data, prev_image_transform=image_transform)
-    test_data = AmazonCSJDatasetWithIMGHD(path=None, df=test_data, prev_image_transform=image_transform)
+    train_data = AmazonCSJDatasetWithIMGHD(path=None, df=train_data, prev_image_transform=image_transform, img_path=img_path)
+    test_data = AmazonCSJDatasetWithIMGHD(path=None, df=test_data, prev_image_transform=image_transform, img_path=img_path)
 
     optimizer = optimizer_fn(model.parameters(), lr=lr, weight_decay=weight_decay)
     

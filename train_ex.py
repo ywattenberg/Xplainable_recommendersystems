@@ -17,7 +17,7 @@ def loop():
     path_to_csv = '/mnt/ds3lab-scratch/ywattenberg/data/compact_fashion_ImgHD.csv'
     batch_size_df = pd.DataFrame(columns=['batch_size', 'loss', 'time'])  
     for i in range(9):
-        trainer = get_trainer_imageHD(model_fn, path_to_csv=path_to_csv, batch_size=2 ** (i+1), timm_model=True)
+        trainer = get_trainer_imageHD(model_fn, path_to_csv=path_to_csv, batch_size=2 ** (i+1), timm_model=True, img_path='/mnt/ds3lab-scratch/ywattenberg/data/fashion_imagesHD/')
         start = time.time()
         trainer.train_loop()
         total = time.time() - start
