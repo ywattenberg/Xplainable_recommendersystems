@@ -84,14 +84,15 @@ class Trainer():
         test_loss /= num_batches
         correct /= size
         print(f'Test Error \n Accuracy: {(100 * correct):>1f}%, Avg loss: {test_loss:>8f}')
+        return test_loss
 
 
     def train_test(self):
         try:
             for t in range(self.num_epochs):
-                    print(f"Epoch {t + 1}\n-------------------------------")
-                    self.train_loop()
-                    self.test_loop()
+                print(f"Epoch {t + 1}\n-------------------------------")
+                self.train_loop()
+                self.current_test_loss = self.test_loop()
             print("Done!")
             torch.save(self.model.state_dict(), f'model_weights_{self.name}.pth')
             torch.save(self.model, f'entire_model_{self.name}.pth')
@@ -103,3 +104,4 @@ class Trainer():
                 torch.save(self.model, f'entire_model_{self.name}.pth')
             else: 
                 print('Not saving...')
+        
