@@ -44,7 +44,6 @@ def calculate_IG(model, image, baseline, user_in, product_in, image_transform=No
     image = image.unsqueeze(dim=0)
     image = image.to(device)
     image = image.requires_grad_(True)
-
     ig = IntegratedGradients(model)
     attributions = ig.attribute(image, baselines=baseline, additional_forward_args=(user_in,  
                                 product_in), n_steps=steps, method='gausslegendre', internal_batch_size=32)
@@ -125,7 +124,6 @@ def aggregate_attributions(attribution_mask_w, attribution_mask_b,  attribution_
 
     side_length = 28
     num_of_quads = int(attribution_mask_b.shape[0]/side_length)
-    print(num_of_quads)
 
     for x in range(num_of_quads):
         for y in range(num_of_quads):

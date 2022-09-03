@@ -10,27 +10,26 @@ from explanation_generation.augmented_images import gen_explanation
 
 def main():
     
-    model = torch.load('entire_model_2022-08-28_17.pth').to('cuda')
-    #model = torch.load('/mnt/ds3lab-scratch/ywattenberg/models/entire_model_mixer_split.pth').to('cuda')
+    #model = torch.load('entire_model_2022-08-28_17.pth').to('cuda')
+    model = torch.load('/mnt/ds3lab-scratch/ywattenberg/models/entire_model_mixer_split.pth').to('cuda')
     model = model.module
     model.eval()
 
     df = pd.read_csv('/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ_imgHD.csv')
-    annotations = pd.read_csv('annotations/annotations_1-65_Piri.csv', index_col='Unnamed: 0')
+    annotations = pd.read_csv('annotations/annotations_1.csv', index_col='Unnamed: 0')
     total_attribution_inside = [0.0,0.0,0.0]
     total_score_w_b_r = [0.0,0.0,0.0]
     total_score_counter = [0,0]
 
     for index, row in annotations.iterrows():
-        print(row.asin)
+        print(index)
         reviewerID = row.reviewerID
         asin = row.asin
-        
+
         userID = get_userID(reviewerID, df)
         productID = get_ProductID(asin, df)
-
         image = Image.open('/mnt/ds3lab-scratch/ywattenberg/data/images/' + asin + '.jpg')
-        attributions = get_IG_attributions(model, image, productID, userID, tmm_model=True, device='cuda')
+        attributions = get_IG_attributions(model, image, userID, productID, tmm_model=True, device='cuda')
         agg_attributions = aggregate_attributions(attributions[0], attributions[1],  torch.mean(torch.stack(attributions[2:]), dim=0))
 
         # Calculate total attributed
@@ -66,7 +65,7 @@ def main():
 
         rects_in = set()
         tmp_score = 0.0
-        top_k = 20
+        top_k = 10
         for bbox in bboxes:
             score_df = get_top_n_score(agg_attributions_df, top_k, 'w', bbox[0], bbox[1], bbox[2], bbox[3])
             score_df = score_df[~score_df.index.isin(rects_in)]
@@ -92,7 +91,7 @@ def main():
             rects_in.update(score_df[score_df==True].index.values)
         total_score_w_b_r[2] += tmp_score
 
-        attributions = gen_explanation(model, image, productID, userID, tmm_model=True)
+        attributions = gen_explanation(model, image, userID, productID, tmm_model=True)
         agg_attributions_df = pd.DataFrame(columns=['x','y','side_length','w', 'm'])
         for x in range(num_rects):
             for y in range(num_rects):
