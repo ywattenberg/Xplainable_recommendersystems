@@ -32,14 +32,14 @@ class MatrixFactorizationWithImages(torch.nn.Module):
 
 class MatrixFactorizationWithImages_split(torch.nn.Module):
 
-    def __init__(self, num_users, num_items, n_factors=100, feature_extractor=None):
+    def __init__(self, num_users, num_items, n_factors=100, feature_extractor=None, item_factors=10):
         super().__init__()
 
         print(num_users)
         self.image_feature_extractor = feature_extractor
 
         self.user_factors = torch.nn.Embedding(num_users, n_factors)
-        self.item_factors = torch.nn.Embedding(num_items, 10)
+        self.item_factors = torch.nn.Embedding(num_items, item_factors)
         self.user_biases = torch.nn.Embedding(num_users, 1)
         self.item_biases = torch.nn.Embedding(num_items,1)
         torch.nn.init.xavier_uniform_(self.user_factors.weight)
@@ -90,13 +90,13 @@ def get_MF_with_images_Mixerl16(num_users, num_items, n_factors=100):
     return MatrixFactorizationWithImages(num_users=num_users, num_items=num_items, n_factors=n_factors,            
                                             feature_extractor=mixer_l16(num_classes=n_factors))
 
-def get_MF_with_images_Mixer12_split(num_users, num_items, n_factors=100):
+def get_MF_with_images_Mixer12_split(num_users, num_items, n_factors=100, item_factors=10):
     return MatrixFactorizationWithImages_split(num_users=num_users, num_items=num_items, n_factors=n_factors,            
-                                            feature_extractor=resmlp_12(num_classes=90))
+                                            feature_extractor=resmlp_12(num_classes=n_factors-item_factors), item_factors=item_factors)
 
-def get_MF_with_images_Efficent_split(num_users, num_items, n_factors=100):
+def get_MF_with_images_Efficent_split(num_users, num_items, n_factors=100, item_factors=10):
     return MatrixFactorizationWithImages_split(num_users=num_users, num_items=num_items, n_factors=n_factors,            
-                                            feature_extractor=EfficentNetB4Model(num_of_latents=90))
+                                            feature_extractor=EfficentNetB4Model(num_of_latents=n_factors-item_factors), item_factors=item_factors)
 
 def get_MF_only_images_Mixer12(num_users, num_items, n_factors=100):
     return MatrixFactorizationOnlyImages(num_users=num_users, num_items=num_items, n_factors=n_factors,            

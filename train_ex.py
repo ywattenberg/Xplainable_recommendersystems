@@ -15,9 +15,9 @@ from train_models import get_trainer_imageHD, get_trainer_simple
 def loop():
     #model_fn = get_MF_with_images_Mixer12_split
     path_to_csv = '/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ_imgHD.csv'
-    batch_size_df = pd.DataFrame(columns=['batch_size', 'loss', 'time'])  
-    for i in range(10):
-        trainer = get_trainer_simple(path_to_csv=path_to_csv, batch_size=512, lr=0.1)
+    batch_size_df = pd.DataFrame(columns=['item feature', 'loss', 'time'])  
+    for i in [10, 50, 70]:
+        trainer = get_trainer_imageHD(model_fn=get_MF_with_images_Mixer12_split, path_to_csv=path_to_csv, batch_size=512, lr=0.01, num_epochs=2, item_feature=i)
         start = time.time()
         trainer.train_loop()
         loss = trainer.test_loop()

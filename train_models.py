@@ -11,19 +11,19 @@ from models.SimpleMatrixFactorization import ModelMatrixFactorization
 from dataset.amazon_dataset_utils import *
 from trainer import Trainer
 
-def get_trainer_imageHD(model_fn, timm_model=False, image_transform=None, path_to_csv='/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ_imgHD_subset_train.csv', img_path=None , epochs=4, batch_size=512, lr=0.01, weight_decay=0.0, optimizer_fn=torch.optim.SGD, loss_fn=torch.nn.MSELoss):
-    df = pd.read_csv(path_to_csv)
-    train_data = df[df['rank_latest'] != 1]
-    test_data = df[df['rank_latest'] == 1]
-    #train_data = pd.read_csv('/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ_imgHD_subset_train.csv')
-    #test_data = pd.read_csv('/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ_imgHD_subset_test.csv')
-    num_users = df['userID'].nunique()
-    num_items = df['productID'].nunique()
+def get_trainer_imageHD(model_fn, timm_model=False, image_transform=None, path_to_csv='/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ_imgHD_subset_train.csv', img_path=None , epochs=4, batch_size=512, lr=0.01, weight_decay=0.0, optimizer_fn=torch.optim.SGD, loss_fn=torch.nn.MSELoss, n_features=100, item_feature=10):
+    #df = pd.read_csv(path_to_csv)
+    #train_data = df[df['rank_latest'] != 1]
+    #test_data = df[df['rank_latest'] == 1]
+    train_data = pd.read_csv('/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ_imgHD_subset_train.csv')
+    test_data = pd.read_csv('/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ_imgHD_subset_test.csv')
+    num_users = train_data['userID'].nunique()
+    num_items = train_data['productID'].nunique()
     print(num_users)
-    print(train_data['reviewerID'].nunique())
+    print(test_data['reviewerID'].nunique())
 
 
-    model = torch.nn.DataParallel(model_fn(num_items=num_items, num_users=num_users))
+    model = torch.nn.DataParallel(model_fn(num_items=num_items, num_users=num_users, n_factors=n_features, item_feature=item_feature))
     #model = torch.load('tmp_entire_model_imp.pth')
 
     if timm_model:
