@@ -36,7 +36,7 @@ def get_trainer_imageHD(model_fn, timm_model=False, image_transform=None, path_t
     
     return Trainer(model, train_data, test_data, loss_fn, optimizer, batch_size=batch_size, epochs=epochs)
 
-def get_trainer_simple(path_to_csv='/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ_imgHD_subset_train.csv', img_path=None , epochs=4, batch_size=512, lr=0.01, weight_decay=0.0, optimizer_fn=torch.optim.SGD, loss_fn=torch.nn.MSELoss):
+def get_trainer_simple(path_to_csv='/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ_imgHD_subset_train.csv', img_path=None , epochs=4, batch_size=512, lr=0.1, weight_decay=0.0, optimizer_fn=torch.optim.SGD, loss_fn=torch.nn.MSELoss):
     
     df = pd.read_csv(path_to_csv)
     train_data = df[df['rank_latest'] != 1]
@@ -47,7 +47,7 @@ def get_trainer_simple(path_to_csv='/mnt/ds3lab-scratch/ywattenberg/data/compact
     num_items = df['productID'].nunique()
 
 
-    model = torch.nn.DataParallel(ModelMatrixFactorization(num_items=num_items, num_users=num_users))
+    model = torch.nn.DataParallel(ModelMatrixFactorization(num_items=num_items, num_users=num_users, n_factors=100))
     #model = torch.load('tmp_entire_model_imp.pth')
     
     train_data = AmazonCSJDataset(path=None, df=train_data)
