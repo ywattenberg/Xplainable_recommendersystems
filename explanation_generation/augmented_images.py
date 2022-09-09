@@ -5,10 +5,13 @@ import matplotlib.pyplot as plt
 import torch
 from random import randint
 import torchvision.transforms as T
+import math
+from PIL import Image
+
+import sys
+sys.path.append('../Xplainable_recommendersystems')
 
 from dataset.amazon_dataset_utils import transform, imageHD_transform
-from PIL import Image
-import math
 
 
 def color_dist(p1, p2):
@@ -19,25 +22,25 @@ def color_dist(p1, p2):
 def main():
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
-    #df = pd.read_csv('/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ_imgHD.csv')
+    df = pd.read_csv('/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ_imgHD.csv')
     #num_users = df['reviewerID'].nunique()
     #num_items = df['asin'].nunique()
     
-    model = torch.load('/mnt/ds3lab-scratch/ywattenberg/models/mixer_14_10f_small_data.pth').to(device)
+    model = torch.load('/mnt/ds3lab-scratch/ywattenberg/models/entire_model_mixer_split.pth').to(device)
 
     model = model.module
 
-    #train_data = df[df['rank_latest'] != 1]
-    #test_data = df[df['rank_latest'] == 1]
+    train_data = df[df['rank_latest'] != 1]
+    test_data = df[df['rank_latest'] == 1]
 
-    train_data = pd.read_csv('/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ_imgHD_subset_train.csv') 
-    test_data = pd.read_csv('/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ_imgHD_subset_test.csv')
+    #train_data = pd.read_csv('/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ_imgHD_subset_train.csv') 
+    #test_data = pd.read_csv('/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ_imgHD_subset_test.csv')
     
     # image_transform = imageHD_transform 
     image_transform = T.Compose([T.Resize(size=256, interpolation=T.InterpolationMode.BICUBIC, max_size=None, antialias=None), T.CenterCrop(size=(224, 224)), T.ToTensor(), T.Normalize(mean=torch.tensor([0.4850, 0.4560, 0.4060]), std=torch.tensor([0.2290, 0.2240, 0.2250]))])
 
     length = len(test_data)
-    for i in range(20):
+    for i in range(100):
         index = randint(0, length)
         user_input = test_data.iloc[index].userID
         product_input = test_data.iloc[index].productID
