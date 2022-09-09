@@ -64,7 +64,7 @@ class Trainer():
             
             if batch % 1000 == 0:
                 print('saving model...')
-                torch.save(self.model, 'tmp_entire_model_imp.pth')
+                torch.save(self.model, 'tmp_entire_model.pth')
 
     def test_loop(self):
         size = len(self.test_dataloader.dataset)

@@ -17,13 +17,13 @@ def loop():
     path_to_csv = '/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ_imgHD.csv'
     batch_size_df = pd.DataFrame(columns=['item feature', 'loss', 'time'])  
     for i in [10, 50, 70]:
-        trainer = get_trainer_imageHD(model_fn=get_MF_with_images_Mixer12_split, path_to_csv=path_to_csv, batch_size=512, lr=0.01, num_epochs=2, item_feature=i)
+        trainer = get_trainer_imageHD(model_fn=get_MF_with_images_Efficent_split, path_to_csv=path_to_csv, batch_size=512, lr=0.01, epochs=2, item_factors=i, timm_model = True)
         start = time.time()
         trainer.train_loop()
         loss = trainer.test_loop()
         total = time.time() - start
         batch_size_df.loc[len(batch_size_df)] = [i, loss, total]
-        batch_size_df.to_csv('epochs_baseline.csv')
+        batch_size_df.to_csv('split_test.csv')
 
 
 
