@@ -103,6 +103,47 @@ def main():
         fig.savefig(f'test_img/{i}.jpg')
         plt.close(fig)
     
+def colour_change(model, img_input, user_input, product_in):
+    image_transform = T.Compose([T.Resize(size=256, interpolation=T.InterpolationMode.BICUBIC, max_size=None, antialias=None), T.CenterCrop(size=(224, 224)), T.ToTensor(), T.Normalize(mean=torch.tensor([0.4850, 0.4560, 0.4060]), std=torch.tensor([0.2290, 0.2240, 0.2250]))])
+    img_input = image_transform(img_input).unsqueeze(dim=0).to('cuda')
+    user_input = transform(user_input).unsqueeze(dim=0)
+    product_input = transform(product_input).unsqueeze(dim=0)
+
+    with torch.no_grad():
+        pred = model(img_input, user_input, product_input)
+    red = img_input.clone()
+    blue = img_input.clone()
+    green = img_input.clone()
+    for x in range(224):
+        for y in range(224):
+            pixel = img_input[0, :, x, y].cpu().numpy()
+            if color_dist(pixel, (1,1,1)) > 0.1:
+                if red[0, 0, x, y] > 0.8:
+                    red[0, 0, x, y] = 1.0
+                else:
+                    red[0, 0, x, y] = pixel[0] + 0.2
+                
+                if green[0, 1, x, y] > 0.8:
+                    green[0, 1, x, y] = 1.0
+                else:
+                    green[0, 1, x, y] = pixel[1] + 0.2
+                
+                if blue[0, 2, x, y] > 0.8:
+                    blue[0, 2, x, y] = 1.0
+                else:
+                    blue[0, 2, x, y] = pixel[2] + 0.2
+
+    with torch.no_grad():
+        pred_red = model(red, user_input, product_input)
+        pred_blue = model(blue, user_input, product_input)
+        pred_green = model(green, user_input, product_input)
+    
+    diff = torch.abs(pred_blue - pred)
+    diff += torch.abs(pred_red - pred)
+    diff += torch.abs(pred_green - pred)
+    
+    return diff
+
 
 def gen_explanation(model, img_input, user_input, product_input, tmm_model=False):
     
