@@ -6,7 +6,7 @@ import torch
 from PIL import Image
 
 from explanation_generation.integrated_gradients import aggregate_attributions, get_IG_attributions, attributions_w_b_r
-from explanation_generation.augmented_images import gen_explanation
+from explanation_generation.augmented_images import gen_explanation, colour_change
 
 def main():
     
@@ -124,10 +124,46 @@ def main():
     print(total_attribution_inside)
     print(f' counter white: {total_score_counter[0]/float(len(annotations))}, counter black: {total_score_counter[1]/float(len(annotations))}')
 
+
+def color():
+    #model = torch.load('entire_model_2022-08-28_17.pth').to('cuda')
+    model = torch.load('/mnt/ds3lab-scratch/ywattenberg/models/entire_model_vgg_add.pth').to('cuda')
+    model = model.module
+    model.eval()
+
+    df = pd.read_csv('/mnt/ds3lab-scratch/ywattenberg/data/compact_CSJ_imgHD.csv')
+    annotations = pd.read_csv('annotations/annotations_1.csv', index_col='Unnamed: 0')
+
+    chn = []
+    chn_color = []
+    for index, row in annotations.iterrows():
+        print(index)
+        reviewerID = row.reviewerID
+        asin = row.asin
+        color_imp = row.colour
+
+        userID = get_userID(reviewerID, df)
+        productID = get_ProductID(asin, df)
+        image = Image.open('/mnt/ds3lab-scratch/ywattenberg/data/images/' + asin + '.jpg')
+        
+        if color_imp == 1:
+            chn_color.append(color(model, image, userID, productID))
+        else:
+            chn.append(color(model, image, userID, productID))
+    print(chn)
+    print(chn_color)
+        
     
 
 
 
+def get_color_attribution(model, image, userID, productID, tmm_model=False):
+    if tmm_model:
+        attributions = gen_explanation(model, image, userID, productID, tmm_model=True)
+        return attributions[0], attributions[1]
+    else:
+        attributions = gen_explanation(model, image, userID, productID, tmm_model=False)
+        return attributions[0], attributions[1]
 
 def get_userID(reviewerID, df):
     return df.loc[df.reviewerID == reviewerID].userID.values[0]
@@ -164,7 +200,7 @@ def calc_attributions(bbox, attributions):
         
 
 if __name__ == '__main__':
-    main()
+    color()
         
 
 

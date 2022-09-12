@@ -103,7 +103,7 @@ def main():
         fig.savefig(f'test_img/{i}.jpg')
         plt.close(fig)
     
-def colour_change(model, img_input, user_input, product_in):
+def colour_change(model, img_input, user_input, product_input):
     image_transform = T.Compose([T.Resize(size=256, interpolation=T.InterpolationMode.BICUBIC, max_size=None, antialias=None), T.CenterCrop(size=(224, 224)), T.ToTensor(), T.Normalize(mean=torch.tensor([0.4850, 0.4560, 0.4060]), std=torch.tensor([0.2290, 0.2240, 0.2250]))])
     img_input = image_transform(img_input).unsqueeze(dim=0).to('cuda')
     user_input = transform(user_input).unsqueeze(dim=0)
