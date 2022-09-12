@@ -11,7 +11,7 @@ from explanation_generation.augmented_images import gen_explanation
 def main():
     
     #model = torch.load('entire_model_2022-08-28_17.pth').to('cuda')
-    model = torch.load('/mnt/ds3lab-scratch/ywattenberg/models/mixer_model_full_22_6.pth').to('cuda')
+    model = torch.load('/mnt/ds3lab-scratch/ywattenberg/models/entire_model_vgg_add.pth').to('cuda')
     model = model.module
     model.eval()
 
@@ -65,7 +65,7 @@ def main():
 
         rects_in = set()
         tmp_score = 0.0
-        top_k = 20
+        top_k = 5
         for bbox in bboxes:
             score_df = get_top_n_score(agg_attributions_df, top_k, 'w', bbox[0], bbox[1], bbox[2], bbox[3])
             score_df = score_df[~score_df.index.isin(rects_in)]
